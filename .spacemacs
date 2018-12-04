@@ -47,6 +47,7 @@ This function should only modify configuration layer settings."
      neotree
      pandoc
      themes-megapack
+     javascript
      (org :variables
           org-agenda-show-log t
           org-startup-indented t
@@ -457,7 +458,6 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 This function is called only while dumping Spacemacs configuration. You can
 `require' or `load' the libraries of your choice that will be included in the
 dump.")
-  
 
 (defun dotspacemacs/user-config ()
   "Configuration for user code:
@@ -466,40 +466,88 @@ configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
   (with-eval-after-load 'org
-    (setq org-directory "/home/rlk/org"
-          org-default-notes-file (concat org-directory "/capture.org")
-          org-agenda-files '("~/org/home.org"
-                             "~/org/work.org")
-          org-refile-targets '(("~/org/home.org" . (:level . 1))
-                               ("~/org/work.org" . (:level . 1)))
-          org-capture-templates
-          '(("t" "Todo" entry (file "~/org/capture.org")
-             "* TODO %?\n%U" :empty-lines 1)
-            ("T" "Todo with Clipboard" entry (file "~/org/capture.org")
-             "* TODO %?\n%U\n   %c" :empty-lines 1)
-            ("n" "Note" entry (file "~/org/capture.org")
-             "* NOTE %?\n%U" :empty-lines 1)
-            ("N" "Note with Clipboard" entry (file "~/org/capture.org")
-             "* NOTE %?\n%U\n   %c" :empty-lines 1))
-          org-agenda-custom-commands
+    (setq org-directory "~/Org/")
+
+    (setq org-default-notes-file (concat org-directory "capture.org"))
+
+    (setq org-agenda-files (list
+                            (concat org-directory "home.org")
+                            (concat org-directory "work.org")))
+
+    (setq org-refile-targets (quote ((org-agenda-files :level . 1))))
+
+    (setq org-capture-templates
+          `(("t" "Todo to Inbox" entry
+             (file+headline ,(concat org-directory "capture.org") "Inbox")
+             "* TODO %? \n %i\n")
+
+            ("T" "Todo and Clock In" entry
+             (file+headline ,(concat org-directory "capture.org") "Inbox")
+             "* TODO %? \n %i\n" :clock-in t :clock-keep t)
+
+            ("e" "Create Event" entry
+             (file+datetree+prompt ,(concat org-directory "events.org")
+                                   "* %?\n%T" :empty-lines 0))
+
+            ("E" "Create Event and Clock In" entry
+             (file+datetree+prompt ,(concat org-directory "events.org")
+                                   "* %?\n%T" :clock-in t :clock-keep t))
+
+            ("n" "Note" entry (file ,(concat org-directory "capture.org")
+                                    "* NOTE %?\n%U" :empty-lines 1))
+
+            ("N" "Note with Clipboard" entry (file ,(concat org-directory "capture.org")
+                                                   "* NOTE %?\n%U\n   %c" :empty-lines 1))))
+
+    (setq org-agenda-custom-commands
           '(("d" "Timeline for today" ((agenda ""))
              ((org-agenda-span 'day)
               (org-agenda-start-day "+0d")
               (org-agenda-show-log t)
               (org-agenda-log-mode-items '(clock closed))
               (org-agenda-clockreport-mode t)
-              (org-agenda-entry-types '()))))
-          org-journal-dir "/home/rlk/org/journal/"
-          org-journal-file-format "%Y-%m-%d"
-          org-journal-date-prefix "#+TITLE: "
-          org-journal-date-format "%A, %B %d %Y"
-          org-journal-time-prefix "* "
-          org-journal-time-format "[%R]")
-    (add-hook 'org-mode-hook #'auto-fill-mode))
+              (org-agenda-entry-types '())))
 
+            ("y" "Timeline for today" ((agenda ""))
+             ((org-agenda-span 'day)
+              (org-agenda-start-day "-1d")
+              (org-agenda-show-log t)
+              (org-agenda-log-mode-items '(clock closed))
+              (org-agenda-clockreport-mode t)
+              (org-agenda-entry-types '())))
+
+            ("w" "Timeline for today" ((agenda ""))
+             ((org-agenda-span 'week)
+              (org-agenda-start-day "+0d")
+              (org-agenda-show-log t)
+              (org-agenda-log-mode-items '(clock closed))
+              (org-agenda-clockreport-mode t)
+              (org-agenda-entry-types '())))))
+
+    (setq org-clock-in-resume t)
+    (setq org-clock-out-when-done t)
+    (setq org-clock-persist t)
+    (setq org-clock-persist-query-resume nil)
+    (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+    (setq org-clock-report-include-clocking-task t)
+
+    (setq org-journal-dir "/home/rlk/Org/Journal/")
+    (setq org-journal-file-format "%Y-%m-%d")
+    (setq org-journal-date-prefix "#+TITLE: ")
+    (setq org-journal-date-format "%A, %B %d %Y")
+    (setq org-journal-time-prefix "* ")
+    (setq org-journal-time-format "[%R]")
+
+    (add-hook 'org-mode-hook #'auto-fill-mode)
+    (org-clock-persistence-insinuate)
+    (setq org-bullets-bullet-list '("#"))
+    )
+  (spacemacs|do-after-display-system-init
+   (spacemacs-modeline/init-spaceline))
 
   (org-super-agenda-mode)
 
+  (fci-mode t)
   (setq spaceline-org-clock-p t)
 
   (setq org-super-agenda-groups
@@ -526,13 +574,15 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (json-navigator hierarchy json-mode json-snatcher json-reformat web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data web-beautify tern prettier-js lsp-javascript-typescript typescript-mode lsp-mode livid-mode skewer-mode js2-refactor yasnippet multiple-cursors js2-mode js-doc impatient-mode simple-httpd helm-gtags ggtags flycheck counsel-gtags company add-node-modules-path doom-themes xterm-color ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline-all-the-icons smeargle slime shell-pop restart-emacs rainbow-delimiters popwin persp-mode pdf-tools pcre2el password-generator parinfer paradox pandoc-mode ox-pandoc overseer orgit org-super-agenda org-projectile org-present org-pomodoro org-mime org-journal org-download org-bullets org-brain open-junk-file neotree nameless multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow lorem-ipsum link-hint indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-mode-manager helm-make helm-gitignore helm-git-grep helm-flx helm-descbinds helm-ag google-translate golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline diminish define-word counsel-projectile column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile aggressive-indent ace-window ace-link ace-jump-helm-line))))
+    (json-navigator hierarchy json-mode json-snatcher json-reformat web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data web-beautify tern prettier-js lsp-javascript-typescript typescript-mode lsp-mode livid-mode skewer-mode js2-refactor yasnippet multiple-cursors js2-mode js-doc impatient-mode simple-httpd helm-gtags ggtags flycheck counsel-gtags company add-node-modules-path doom-themes xterm-color ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline-all-the-icons smeargle slime shell-pop restart-emacs rainbow-delimiters popwin persp-mode pdf-tools pcre2el password-generator parinfer paradox pandoc-mode ox-pandoc overseer orgit org-super-agenda org-projectile org-present org-pomodoro org-mime org-journal org-download org-bullets org-brain open-junk-file neotree nameless multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow lorem-ipsum link-hint indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-mode-manager helm-make helm-gitignore helm-git-grep helm-flx helm-descbinds helm-ag google-translate golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline diminish define-word counsel-projectile column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile aggressive-indent ace-window ace-link ace-jump-helm-line)))
+ '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:background nil)))))
 )
