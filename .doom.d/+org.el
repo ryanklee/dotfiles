@@ -37,6 +37,7 @@
   (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
   (setq org-clock-report-include-clocking-task t)
 
+ `(add-hook 'auto-save-hook 'org-save-all-org-buffers)`
   (add-hook 'org-mode-hook #'auto-fill-mode)
   (org-clock-persistence-insinuate)
 

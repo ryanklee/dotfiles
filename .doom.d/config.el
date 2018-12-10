@@ -4,4 +4,4 @@
 
 (load! "+org.el")
 (load! "+ui.el")
-`(add-hook 'auto-save-hook 'org-save-all-org-buffers)`
+(load! "+map.el")
