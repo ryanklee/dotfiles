@@ -135,7 +135,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil then Spacelpa repository is the primary source to install
    ;; a locked version of packages. If nil then Spacemacs will install the
    ;; latest version of packages from MELPA. (default nil)
-   dotspacemacs-use-spacelpa t
+   dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
    ;; (default nil)
@@ -214,9 +214,8 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Input Mono Narrow"
-                               :size 14
-                               :weight semi-light)
+   dotspacemacs-default-font '("InputMono"
+                               :size 16)
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
@@ -449,8 +448,6 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  (add-to-list 'default-frame-alist
-               '(font . "-FBI -Input Mono Narrow-normal-normal-semicondensed-*-14-*-*-*-m-0-iso10646-1"))
   )
 
 (defun dotspacemacs/user-load ()
@@ -465,8 +462,12 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (setq user-emacs-directory "C:/Users/ryan.kleeberger/.emacs.d/")
+  (setq default-directory "C:/Users/ryan.kleeberger/")
+  (setenv "HOME" "C/:Users/ryan.kleeberger/")
+  (ido-mode -1)
   (with-eval-after-load 'org
-    (setq org-directory "~/Org/")
+    (setq org-directory "C:/Users/ryan.kleeberger/Dropbox/Org/")
 
     (setq org-default-notes-file (concat org-directory "capture.org"))
 
@@ -500,29 +501,32 @@ before packages are loaded."
                                                    "* NOTE %?\n%U\n   %c" :empty-lines 1))))
 
     (setq org-agenda-custom-commands
-          '(("d" "Timeline for today" ((agenda ""))
+          '(("d" "Today" ((agenda ""))
              ((org-agenda-span 'day)
               (org-agenda-start-day "+0d")
               (org-agenda-show-log t)
               (org-agenda-log-mode-items '(clock closed))
               (org-agenda-clockreport-mode t)
-              (org-agenda-entry-types '())))
+              (org-agenda-entry-types '())
+              ))
 
-            ("y" "Timeline for today" ((agenda ""))
+            ("y" "Yesterday" ((agenda ""))
              ((org-agenda-span 'day)
               (org-agenda-start-day "-1d")
               (org-agenda-show-log t)
               (org-agenda-log-mode-items '(clock closed))
               (org-agenda-clockreport-mode t)
-              (org-agenda-entry-types '())))
+              (org-agenda-entry-types '())
+              ))
 
-            ("w" "Timeline for today" ((agenda ""))
-             ((org-agenda-span 'week)
-              (org-agenda-start-day "+0d")
+            ("w" "Week" ((agenda ""))
+             ((org-agenda-span 8)
+              (org-agenda-start-day "-7d")
               (org-agenda-show-log t)
               (org-agenda-log-mode-items '(clock closed))
               (org-agenda-clockreport-mode t)
-              (org-agenda-entry-types '())))))
+              (org-agenda-entry-types '())
+              ))))
 
     (setq org-clock-in-resume t)
     (setq org-clock-out-when-done t)
@@ -531,7 +535,7 @@ before packages are loaded."
     (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
     (setq org-clock-report-include-clocking-task t)
 
-    (setq org-journal-dir "/home/rlk/Org/Journal/")
+    (setq org-journal-dir "C:/Users/ryan.kleeberger/Dropbox/Org/Journal/")
     (setq org-journal-file-format "%Y-%m-%d")
     (setq org-journal-date-prefix "#+TITLE: ")
     (setq org-journal-date-format "%A, %B %d %Y")
@@ -546,7 +550,7 @@ before packages are loaded."
    (spacemacs-modeline/init-spaceline))
 
   (org-super-agenda-mode)
-
+  `(add-hook 'auto-save-hook 'org-save-all-org-buffers)`
   (fci-mode t)
   (setq spaceline-org-clock-p t)
 
@@ -574,15 +578,13 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(evil-want-Y-yank-to-eol nil)
  '(package-selected-packages
    (quote
-    (json-navigator hierarchy json-mode json-snatcher json-reformat web-mode tagedit slim-mode scss-mode sass-mode pug-mode helm-css-scss haml-mode emmet-mode counsel-css company-web web-completion-data web-beautify tern prettier-js lsp-javascript-typescript typescript-mode lsp-mode livid-mode skewer-mode js2-refactor yasnippet multiple-cursors js2-mode js-doc impatient-mode simple-httpd helm-gtags ggtags flycheck counsel-gtags company add-node-modules-path doom-themes xterm-color ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline-all-the-icons smeargle slime shell-pop restart-emacs rainbow-delimiters popwin persp-mode pdf-tools pcre2el password-generator parinfer paradox pandoc-mode ox-pandoc overseer orgit org-super-agenda org-projectile org-present org-pomodoro org-mime org-journal org-download org-bullets org-brain open-junk-file neotree nameless multi-term move-text mmm-mode markdown-toc magit-svn magit-gitflow lorem-ipsum link-hint indent-guide hungry-delete htmlize hl-todo highlight-parentheses highlight-numbers highlight-indentation helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-mode-manager helm-make helm-gitignore helm-git-grep helm-flx helm-descbinds helm-ag google-translate golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md font-lock+ flx-ido fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu eshell-z eshell-prompt-extras esh-help elisp-slime-nav editorconfig dumb-jump dotenv-mode doom-modeline diminish define-word counsel-projectile column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile aggressive-indent ace-window ace-link ace-jump-helm-line)))
- '(paradox-github-token t))
+    (evil-magit zenburn-theme zen-and-art-theme xterm-color ws-butler writeroom-mode winum white-sand-theme which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme toxi-theme toc-org tern tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit symon sunny-day-theme sublime-themes subatomic256-theme subatomic-theme string-inflection spaceline-all-the-icons spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smeargle slime slim-mode shell-pop seti-theme scss-mode sass-mode reverse-theme restart-emacs rebecca-theme rainbow-delimiters railscasts-theme purple-haze-theme pug-mode professional-theme prettier-js popwin planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme persp-mode pdf-tools pcre2el password-generator parinfer paradox pandoc-mode ox-pandoc overseer orgit organic-green-theme org-super-agenda org-projectile org-present org-pomodoro org-mime org-journal org-download org-bullets org-brain open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme neotree naquadah-theme nameless mustang-theme multi-term move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minimal-theme material-theme markdown-toc majapahit-theme magit-svn magit-gitflow madhat2r-theme lush-theme lorem-ipsum livid-mode link-hint light-soap-theme kaolin-themes json-navigator json-mode js2-refactor js-doc jbeans-theme jazz-theme ir-black-theme inkpot-theme indent-guide impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation heroku-theme hemisu-theme helm-xref helm-themes helm-swoop helm-purpose helm-projectile helm-org-rifle helm-mode-manager helm-make helm-gitignore helm-git-grep helm-flx helm-descbinds helm-css-scss helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-translate golden-ratio gnuplot gitignore-templates gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link gh-md gandalf-theme font-lock+ flx-ido flatui-theme flatland-theme fill-column-indicator farmhouse-theme fancy-battery eziam-theme eyebrowse expand-region exotica-theme evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu espresso-theme eshell-z eshell-prompt-extras esh-help emmet-mode elisp-slime-nav editorconfig dumb-jump dracula-theme dotenv-mode doom-themes doom-modeline django-theme diminish define-word darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme counsel-projectile column-enforce-mode color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme clean-aindent-mode cherry-blossom-theme centered-cursor-mode busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme auto-highlight-symbol auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme ace-window ace-link ace-jump-helm-line))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:background nil)))))
+ )
 )
