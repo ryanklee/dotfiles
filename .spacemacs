@@ -214,8 +214,15 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("InputMono"
-                               :size 16)
+   (cond ((eq system-type 'windows-nt)
+          dotspacemacs-default-font '("InputMono"
+                                      :size 16)
+          )
+         ((eq system-type 'gnu/linux)
+          dotspacemacs-default-font '("Input Mono Narrow"
+                                      :size 14
+                                      :weight semi-light)
+          ))
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
@@ -355,7 +362,7 @@ It should only modify the values of Spacemacs settings."
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
    ;; (default nil)
-   dotspacemacs-line-numbers 'relative
+   dotspacemacs-line-numbers nil
 
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
