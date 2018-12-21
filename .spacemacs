@@ -554,7 +554,7 @@ before packages are loaded."
    (spacemacs-modeline/init-spaceline))
 
   (org-super-agenda-mode)
-  `(add-hook 'auto-save-hook 'org-save-all-org-buffers)`
+  (add-hook 'auto-save-hook 'org-save-all-org-buffers)
   (fci-mode t)
   (setq spaceline-org-clock-p t)
 
