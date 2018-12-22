@@ -135,7 +135,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil then Spacelpa repository is the primary source to install
    ;; a locked version of packages. If nil then Spacemacs will install the
    ;; latest version of packages from MELPA. (default nil)
-   dotspacemacs-use-spacelpa t
+   dotspacemacs-use-spacelpa nil
 
    ;; If non-nil then verify the signature for downloaded Spacelpa archives.
    ;; (default nil)
@@ -211,9 +211,6 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Input Mono Narrow"
-                               :size 14
-                               :weight semi-light)
 
    ;; The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
@@ -236,7 +233,7 @@ It should only modify the values of Spacemacs settings."
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
    ;; (default "C-M-m")
    dotspacemacs-major-mode-emacs-leader-key "C-M-m"
-
+   
    ;; These variables control whether separate commands are bound in the GUI to
    ;; the key pairs `C-i', `TAB' and `C-m', `RET'.
    ;; Setting it to a non-nil value, allows for separate commands under `C-i'
@@ -446,16 +443,21 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+
+  (if (eq system-type 'gnu/linux)
+      (setq-default dotspacemacs-default-font '("Input Mono Narrow"
+                                                :size 14
+                                                :weight semi-light)))
+
   (if (eq system-type 'windows-nt)
-      dotspacemacs-default-font '("InputMonoNarrow"
-                                  :size 16)
-  )
+      (setq-default dotspacemacs-default-font '("InputMono"
+                                                :size 16)))
 
   (if (eq system-type 'gnu/linux)
       (add-to-list 'default-frame-alist
                    '(font . "-FBI -Input Mono Narrow-normal-normal-semicondensed-*-14-*-*-*-m-0-iso10646-1"))
     )
- )
+  )
 
 (defun dotspacemacs/user-load ()
   "Library to load while dumping.
