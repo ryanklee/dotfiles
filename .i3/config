@@ -65,7 +65,7 @@ bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
 # Start Applications
 bindsym $mod+Ctrl+e exec systemctl --user stop emacs.service
 bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
-bindsym $mod+F2 exec firefox-developer-edition
+bindsym $mod+F2 exec firefox
 bindsym $mod+F3 exec ranger
 bindsym $mod+Shift+F3 exec gksu pcmanfm
 bindsym $mod+F5 exec terminal -e 'mocp'
