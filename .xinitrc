@@ -64,4 +64,4 @@ get_session(){
 }
 
 exec $(get_session)
-setxkbmap -option caps:escape
+xmodmap ~/.xmodmap
