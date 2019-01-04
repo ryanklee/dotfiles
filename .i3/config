@@ -28,7 +28,7 @@ floating_modifier $mod
 
 # start a terminal
 bindsym $mod+Return exec termite
-bindsym $mod+Shift+Return exec emacsclient -c -n -e '(switch-to-buffer nil)'
+bindsym $mod+Shift+Return exec emacsclient -c -n -e 
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -65,7 +65,7 @@ bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
 # Start Applications
 bindsym $mod+Ctrl+e exec systemctl --user stop emacs.service
 bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
-bindsym $mod+F2 exec firefox
+bindsym $mod+F2 exec chrom-stable
 bindsym $mod+F3 exec ranger
 bindsym $mod+Shift+F3 exec gksu pcmanfm
 bindsym $mod+F5 exec terminal -e 'mocp'
@@ -336,21 +336,22 @@ bar {
 
 	bindsym button4 nop
 	bindsym button5 nop
-#   font xft:URWGothic-Book 11
+  font xft:InputMono 11
 	strip_workspace_numbers yes
 
-    colors {
-        background #222D31
-        statusline #F9FAF9
-        separator  #454947
+  colors {
+      # Whole color settings
+      background #3c3836
+      statusline #ebdbb2
+      separator  #666666
 
-#                      border  backgr. text
-        focused_workspace  #F9FAF9 #16a085 #292F34
-        active_workspace   #595B5B #353836 #FDF6E3
-        inactive_workspace #595B5B #222D31 #EEE8D5
-        binding_mode       #16a085 #2C2C2C #F9FAF9
-        urgent_workspace   #16a085 #FDF6E3 #E5201D
+
+      focused_workspace  #458588 #458588 #ebdbb2
+      active_workspace   #83a598 #83a598 #ebdbb2
+      inactive_workspace #504945 #504945 #ebdbb2
+      urgent_workspace   #cc241d #cc241d #504945
     }
+
 }
 
 # hide/unhide i3status bar
