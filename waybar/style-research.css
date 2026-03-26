@@ -1,0 +1,196 @@
+/* Solarized Dark — Research mode
+ * Cool, clinical, precise
+ */
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 12px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: #002b36;
+    color: #839496;
+    border-bottom: 2px solid #073642;
+}
+
+#workspaces,
+#submap,
+#window,
+#clock,
+#cpu,
+#memory,
+#disk,
+#temperature,
+#custom-hapax-status,
+#custom-working-mode,
+#custom-gpu,
+#custom-docker,
+#pulseaudio,
+#network,
+#idle_inhibitor,
+#systemd-failed-units,
+#mpris,
+#privacy,
+#tray {
+    padding: 0 4px;
+    margin: 0;
+}
+
+#workspaces button {
+    padding: 0 6px;
+    color: #586e75;
+    border: none;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+}
+
+#workspaces button.active {
+    color: #268bd2;
+    border-bottom: 2px solid #268bd2;
+}
+
+#workspaces button.urgent {
+    color: #dc322f;
+    border-bottom: 2px solid #dc322f;
+}
+
+#workspaces button:hover {
+    background: #073642;
+    color: #93a1a1;
+}
+
+#submap {
+    color: #002b36;
+    background-color: #268bd2;
+    padding: 0 8px;
+}
+
+#window {
+    color: #586e75;
+}
+
+#clock {
+    color: #93a1a1;
+}
+
+#cpu, #memory, #disk, #temperature {
+    color: #657b83;
+}
+
+#temperature.critical {
+    color: #dc322f;
+}
+
+#custom-gpu {
+    color: #657b83;
+}
+
+#custom-gpu.warning {
+    color: #b58900;
+}
+
+#custom-gpu.critical {
+    color: #dc322f;
+}
+
+#custom-working-mode {
+    font-weight: bold;
+    padding: 0 6px;
+    min-width: 30px;
+}
+
+#custom-working-mode.research {
+    background-color: #268bd2;
+    color: #002b36;
+    font-weight: bold;
+    padding: 0 6px;
+}
+
+#custom-working-mode.rnd {
+    background-color: #b58900;
+    color: #002b36;
+    font-weight: bold;
+    padding: 0 6px;
+}
+
+#custom-hapax-status {
+    color: #859900;
+}
+
+#custom-hapax-status.degraded {
+    color: #b58900;
+}
+
+#custom-hapax-status.failed {
+    color: #dc322f;
+}
+
+#custom-docker {
+    color: #859900;
+}
+
+#custom-docker.warning {
+    color: #b58900;
+}
+
+#pulseaudio {
+    color: #657b83;
+}
+
+#pulseaudio.muted {
+    color: #073642;
+}
+
+#network {
+    color: #859900;
+}
+
+#network.disconnected {
+    color: #dc322f;
+}
+
+#systemd-failed-units {
+    color: #dc322f;
+}
+
+#mpris {
+    color: #657b83;
+}
+
+#mpris.paused {
+    color: #586e75;
+}
+
+#idle_inhibitor {
+    color: #073642;
+}
+
+#idle_inhibitor.activated {
+    color: #b58900;
+}
+
+#privacy {
+    color: #dc322f;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    background-color: #dc322f;
+}
+
+tooltip {
+    background-color: #002b36;
+    border: 1px solid #073642;
+    border-radius: 0;
+}
+
+tooltip label {
+    color: #93a1a1;
+    padding: 4px;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+}

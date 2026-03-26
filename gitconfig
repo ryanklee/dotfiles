@@ -1,0 +1,21 @@
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[user]
+	email = rylklee@gmail.com
+	name = ryan kleeberger
+[core]
+	editor = micro
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+[rerere]
+	enabled = true
+[diff]
+	algorithm = histogram
