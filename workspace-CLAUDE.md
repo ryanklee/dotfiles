@@ -57,7 +57,7 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 
 **Host services** (systemd user units, lingering):
 - **TabbyAPI** — Primary local inference (`:5000`), serves Qwen3.5-35B-A3B (EXL3 3.0bpw, 35B MoE). LiteLLM routes `local-fast`, `coding`, `reasoning` here.
-- **Ollama** — CPU embedding only (nomic-embed-cpu). GPU-isolated via `CUDA_VISIBLE_DEVICES=""` in systemd unit — TabbyAPI exclusively owns the GPU. No inference fallback role; qwen3:8b is pulled but unused. Python MODELS dict must use LiteLLM route names (`local-fast`, `coding`, `reasoning`), never Ollama model names directly.
+- **Ollama** — CPU embedding only (nomic-embed-cpu). GPU-isolated via `CUDA_VISIBLE_DEVICES=""` in systemd unit — TabbyAPI exclusively owns the GPU. `qwen3:8b` deleted and LiteLLM route removed. Python MODELS dict must use LiteLLM route names (`local-fast`, `coding`, `reasoning`), never Ollama model names directly.
 - **hapax-secrets** — Centralized credential loading (oneshot, all services depend on this)
 - **logos-api** / **officium-api** — FastAPI on `:8051` / `:8050`
 - **hapax-logos** — Native visual + wgpu rendering surface
