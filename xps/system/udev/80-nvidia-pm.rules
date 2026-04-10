@@ -1,0 +1,4 @@
+# Enable runtime power management for NVIDIA PCI device.
+# This allows the kernel PCI layer to auto-suspend the dGPU when idle.
+ACTION=="add|bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{power/control}="auto"
+ACTION=="add|bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{power/control}="auto"

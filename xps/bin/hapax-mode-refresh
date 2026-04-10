@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# hapax-mode-refresh — pull the current working mode (rnd|research) from
+# hapax-podium into XPS's local cache, for the fish prompt to read.
+#
+# Used by:
+#   - A systemd user timer (every 60 seconds)
+#   - hapax-work (before attaching to remote session)
+#   - Manual invocation
+#
+# Best-effort: silent failure if hapax-podium is unreachable, so the prompt
+# just keeps showing the last known value (or nothing if never fetched).
+
+set -e
+
+CACHE_DIR="$HOME/.cache/hapax"
+CACHE_FILE="$CACHE_DIR/working-mode"
+TMP_FILE="$CACHE_FILE.new"
+
+mkdir -p "$CACHE_DIR"
+
+# Pull via SSH with a short timeout so prompt refreshes stay snappy
+if ssh -o ConnectTimeout=3 -o BatchMode=yes hapax \
+       'cat ~/.cache/hapax/working-mode 2>/dev/null' \
+       > "$TMP_FILE" 2>/dev/null; then
+    # Atomic replace, but only if we actually got content (not empty file)
+    if [ -s "$TMP_FILE" ]; then
+        mv "$TMP_FILE" "$CACHE_FILE"
+    else
+        rm -f "$TMP_FILE"
+    fi
+else
+    rm -f "$TMP_FILE"
+fi

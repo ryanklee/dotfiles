@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# hapax-status — quick health check for hapax-podium remote dev target.
+#
+# Checks, in order:
+#   1. tailnet reachability (tailscale ping)
+#   2. SSH auth (ssh in BatchMode)
+#   3. Persistent work tmux session exists
+#   4. Current working mode (rnd|research)
+#
+# Exit codes:
+#   0 = all good
+#   1 = tailnet unreachable
+#   2 = tailnet ok but SSH failing
+#   3 = SSH ok but work tmux session missing
+
+set -e
+
+# 1. tailnet (timeout is natural — tailscale ping -c 1 sends up to 10 probes
+# until direct path found, or up to ~10s)
+if ! timeout 5 tailscale ping -c 1 hapax-podium >/dev/null 2>&1; then
+    echo "[down] tailscale cannot reach hapax-podium"
+    exit 1
+fi
+
+# 2. SSH
+if ! ssh -o BatchMode=yes -o ConnectTimeout=3 hapax true 2>/dev/null; then
+    echo "[ssh-fail] tailnet ok but ssh not responding"
+    exit 2
+fi
+
+# 3. Persistent tmux
+if ! ssh -o BatchMode=yes hapax 'tmux has-session -t work' 2>/dev/null; then
+    echo "[tmux-missing] ssh ok but 'work' tmux session not running"
+    exit 3
+fi
+
+# 4. Current mode
+MODE=$(ssh -o BatchMode=yes hapax 'cat ~/.cache/hapax/working-mode 2>/dev/null' 2>/dev/null | head -1)
+
+# Latency
+LATENCY=$(timeout 5 tailscale ping -c 1 hapax-podium 2>/dev/null | grep -oE '[0-9]+ms' | head -1)
+
+echo "[ok] hapax-podium up | tmux work session live | mode=${MODE:-unknown} | latency=${LATENCY:-?}"

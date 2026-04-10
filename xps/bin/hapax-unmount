@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# hapax-unmount — unmount hapax-podium sshfs
+MOUNT="$HOME/hapax-mnt"
+if mountpoint -q "$MOUNT"; then
+    fusermount3 -u "$MOUNT" && echo "Unmounted $MOUNT"
+else
+    echo "$MOUNT is not mounted"
+fi

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# hapax-logs — tail a systemd user service's journal on hapax-podium
+#
+# Usage:
+#   hapax-logs <service>                 last 50 lines
+#   hapax-logs <service> -f              follow (live tail)
+#   hapax-logs <service> -n 200          last 200 lines
+#   hapax-logs <service> --since '1 hour ago'
+#   hapax-logs <service> -p err          errors only
+#
+# Note: service name is matched to systemd user units on hapax-podium.
+#       The '.service' suffix is optional.
+
+if [ $# -eq 0 ]; then
+    cat >&2 <<'USAGE'
+Usage: hapax-logs <service> [journalctl options]
+
+Examples:
+  hapax-logs logos-api
+  hapax-logs hapax-daimonion -f
+  hapax-logs officium-api -n 200
+  hapax-logs logos-api --since '1 hour ago'
+  hapax-logs hapax-dmn -p err
+
+Tails remote systemd user service logs over SSH to hapax-podium.
+USAGE
+    exit 2
+fi
+
+# -t for TTY so paging and -f work correctly over the SSH channel
+exec ssh -t hapax -- journalctl --user -u "$@"

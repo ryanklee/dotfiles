@@ -1,0 +1,16 @@
+# SSH config — XPS → remote dev
+# Primary target: hapax-podium (CachyOS, Hyprland, CC runs here in a persistent tmux)
+
+Host hapax hapax-podium
+    HostName hapax-podium
+    User hapax
+    IdentityFile ~/.ssh/id_ed25519
+    # Hotel-wifi keepalive (45s dead-connection detection)
+    ServerAliveInterval 15
+    ServerAliveCountMax 3
+    # Connection reuse for speed: subsequent ssh commands use the same TCP session
+    ControlMaster auto
+    ControlPath ~/.ssh/cm-%r@%h:%p
+    ControlPersist 10m
+    # Agent forwarding (safe on a trusted tailnet, lets git ops work remotely)
+    ForwardAgent yes

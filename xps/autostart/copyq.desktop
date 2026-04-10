@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=CopyQ Clipboard Manager
+Exec=copyq
+Type=Application
+X-GNOME-Autostart-enabled=true
+Hidden=false
+NoDisplay=true
+Comment=Clipboard manager with history

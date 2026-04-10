@@ -1,0 +1,8 @@
+[Unit]
+Description=Pull hapax-podium working mode into local cache for prompt display
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/rlk/bin/hapax-mode-refresh
+TimeoutStartSec=10s

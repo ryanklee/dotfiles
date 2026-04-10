@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# hapax-mount — mount hapax-podium's home via sshfs
+set -e
+MOUNT="$HOME/hapax-mnt"
+mkdir -p "$MOUNT"
+
+if mountpoint -q "$MOUNT"; then
+    echo "Already mounted at $MOUNT"
+    exit 0
+fi
+
+sshfs hapax:/home/hapax "$MOUNT" \
+    -o reconnect \
+    -o ServerAliveInterval=15 \
+    -o ServerAliveCountMax=3 \
+    -o follow_symlinks \
+    -o cache=yes \
+    -o kernel_cache \
+    -o auto_cache \
+    -o idmap=user
+
+echo "Mounted hapax:/home/hapax at $MOUNT"
+echo "  projects: $MOUNT/projects/"
+echo "  dotfiles: $MOUNT/dotfiles/"
+echo "  pass:     $MOUNT/.password-store/"
+echo "Unmount with: hapax-unmount"

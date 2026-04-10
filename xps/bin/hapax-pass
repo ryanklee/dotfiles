@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# hapax-pass — fetch a secret from hapax-podium's pass store over SSH
+# without needing pass/GPG installed locally.
+#
+# Usage: hapax-pass <category/entry>
+#   e.g., hapax-pass github/claude-code
+#         hapax-pass api/openai
+
+if [ -z "$1" ]; then
+    cat >&2 <<'USAGE'
+Usage: hapax-pass <entry>
+  e.g. hapax-pass github/token
+       hapax-pass api/openai
+
+Fetches a secret from hapax-podium's pass store over SSH.
+Requires that this machine can SSH to 'hapax' via ~/.ssh/config.
+USAGE
+    exit 2
+fi
+
+# Use printf %q to escape shell metacharacters — paths in pass can contain spaces
+exec ssh hapax "pass show $(printf '%q' "$1")"

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# hapax-work — launch a remote Claude Code work session on hapax-podium
+#
+# SSH into hapax-podium, attach to (or create) the persistent `work` tmux session
+# rooted at ~/projects, where Claude Code lives.
+#
+# Usage: hapax-work
+
+set -e
+
+# Refresh the working-mode cache so the local prompt reflects reality on
+# reattach (best-effort; don't fail if offline).
+if command -v hapax-mode-refresh >/dev/null 2>&1; then
+    hapax-mode-refresh 2>/dev/null || true
+fi
+
+# Prefer mosh if installed on BOTH ends (better behavior on flaky wifi),
+# otherwise fall back to ssh with tcp keepalive.
+if command -v mosh >/dev/null 2>&1 && ssh -o BatchMode=yes -o ConnectTimeout=3 hapax 'command -v mosh-server' >/dev/null 2>&1; then
+    exec mosh hapax -- tmux new-session -A -s work -c ~/projects
+else
+    exec ssh -t hapax 'tmux new-session -A -s work -c ~/projects'
+fi
