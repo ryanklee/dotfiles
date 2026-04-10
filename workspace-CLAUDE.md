@@ -4,14 +4,16 @@ Guidance for Claude Code across the multi-project workspace.
 
 ## Workspace
 
-Seven repositories, three core:
+Nine repositories, three core:
 
 - **hapax-constitution** — Governance specification (axioms, implications, canons). Spec-only, no runtime code. Publishes `hapax-sdlc` package.
 - **hapax-council** — Personal operating environment. 85+ agents, voice daemon, studio compositor, reactive engine. Logos API on `:8051`.
 - **hapax-officium** — Management decision support. Filesystem-as-bus data model. Logos API on `:8050`.
 - **hapax-watch** — Wear OS companion app. Streams biometric sensor data (heart rate, HRV, skin temperature, sleep) to council logos API.
+- **hapax-phone** — Android companion app. Kotlin/Compose.
 - **hapax-mcp** — MCP server (36 tools) bridging logos APIs to Claude Code tools.
 - **tabbyAPI** — External LLM inference server (ExllamaV2/V3). Backend.
+- **atlas-voice-training** — Custom wake word training pipeline (Docker-based openWakeWord fine-tuning).
 - **distro-work** — System maintenance scripts and research docs. Not a software project.
 
 Each sub-project has its own CLAUDE.md — always read it before working in that project.
@@ -20,7 +22,7 @@ Each sub-project has its own CLAUDE.md — always read it before working in that
 
 ## Shared Conventions (all Python projects)
 
-- **uv** for everything (never pip). `uv sync`, `uv run pytest tests/ -q`, `uv run ruff check .`, `uv run ruff format .`, `uv run pyright`.
+- **uv** for everything (never pip). `uv sync --all-extras` for council (services depend on `audio`, `sync-pipeline`, `logos-api` extras). `uv run pytest tests/ -q`, `uv run ruff check .`, `uv run ruff format .`, `uv run pyright`.
 - Python 3.12+, mandatory type hints, Pydantic models for structured data.
 - Ruff: `line-length=100`, double quotes, `select=["E","F","I","UP","B","SIM","TCH"]`, `known-first-party = ["agents", "shared", "logos"]`.
 - Testing: `unittest.mock` only, each test file self-contained, no shared conftest fixtures. `asyncio_mode = "auto"`. Tests marked `llm` excluded by default.
@@ -49,14 +51,14 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 
 **Docker containers** (13, `restart: always`):
 - **LiteLLM** — API gateway (`:4000` council, `:4100` officium), routes to Claude/Gemini/TabbyAPI. Redis response caching enabled (1h TTL). No local model fallback chains — TabbyAPI failures degrade gracefully in agents.
-- **Qdrant** — Vector DB (8 collections: claude-memory, profile-facts, documents, axiom-precedents, samples, operator-episodes, studio-moments, operator-corrections)
+- **Qdrant** — Vector DB (9 collections: profile-facts, documents, axiom-precedents, operator-episodes, studio-moments, operator-corrections, affordances, hapax-apperceptions, operator-patterns). Canonical schema in `shared/qdrant_schema.py`.
 - **PostgreSQL** — Audit/observability
 - **Langfuse** — LLM observability (`:3000`)
 - **Prometheus** + **Grafana** — Metrics and dashboards
-- **Redis**, **ClickHouse**, **MinIO**, **n8n**, **ntfy**, **OpenWebUI**
+- **Redis**, **ClickHouse**, **MinIO** (Langfuse blob store on `/data`; 14-day lifecycle rule on `events/` prefix prevents inode exhaustion), **n8n**, **ntfy**, **OpenWebUI**
 
 **Host services** (systemd user units, lingering):
-- **TabbyAPI** — Primary local inference (`:5000`), serves Qwen3.5-35B-A3B (EXL3 3.0bpw, 35B MoE). LiteLLM routes `local-fast`, `coding`, `reasoning` here.
+- **TabbyAPI** — Primary local inference (`:5000`), serves Qwen3.5-9B (EXL3 5.0bpw, 9B dense DeltaNet). LiteLLM routes `local-fast`, `coding`, `reasoning` here.
 - **Ollama** — CPU embedding only (nomic-embed-cpu). GPU-isolated via `CUDA_VISIBLE_DEVICES=""` in systemd unit — TabbyAPI exclusively owns the GPU. `qwen3:8b` deleted and LiteLLM route removed. Python MODELS dict must use LiteLLM route names (`local-fast`, `coding`, `reasoning`), never Ollama model names directly.
 - **hapax-secrets** — Centralized credential loading (oneshot, all services depend on this)
 - **logos-api** / **officium-api** — FastAPI on `:8051` / `:8050`
@@ -69,7 +71,7 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 - **hapax-daimonion** — Persistent voice daemon (STT on GPU, TTS on CPU via Kokoro 82M)
 - **studio-compositor** — GPU camera tiling/recording/HLS
 - **visual-layer-aggregator** — Perception → Stimmung → /dev/shm
-- 34 timers (sync agents, health monitor, VRAM watchdog, backups)
+- 49 timers (sync agents, health monitor, VRAM watchdog, backups, storage arbiter, rebuilds)
 
 **24/7 recovery**: Kernel panic auto-reboot (10s), hardware watchdog (SP5100 TCO, 30s), greetd autologin, lingering. See `hapax-council/systemd/README.md`.
 
