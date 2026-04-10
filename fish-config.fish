@@ -2,7 +2,9 @@
 # done.fish (sourced by cachyos-config) calls `exit` for non-interactive shells,
 # which kills shells spawned by tools like Claude Code.
 if status is-interactive
-    source /usr/share/cachyos-fish-config/cachyos-config.fish
+    # Guard the source for cross-distro portability — file exists only on CachyOS.
+    set -l cachyos_cfg /usr/share/cachyos-fish-config/cachyos-config.fish
+    test -r $cachyos_cfg; and source $cachyos_cfg
 end
 fish_add_path -g ~/go/bin
 
