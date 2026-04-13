@@ -99,6 +99,12 @@ Two repositories in this workspace are upstream clones — git points at someone
 - **tabbyAPI** (upstream `theroyallab/tabbyAPI`) — runs as a systemd user unit, serves Qwen3.5-9B EXL3 on `:5000`. LiteLLM routes `local-fast`, `coding`, `reasoning` here. Local config in `tabbyAPI/config.yml`. Models in `tabbyAPI/models/`. The systemd unit lives in the council repo, not here.
 - **atlas-voice-training** (upstream `briankelley/atlas-voice-training`) — Docker-based openWakeWord fine-tuning pipeline. Trained `.tflite` models drop into `~/.local/share/openwakeword/`, where hapax-daimonion auto-discovers them.
 
+## Working mode
+
+The operator's working mode (`research`/`rnd`) is the single mode system across the entire stack. Single source of truth: `~/.cache/hapax/working-mode`, written by the `hapax-working-mode` CLI. Council adds a third mode (`fortress`) for studio livestream gating; officium intentionally omits it. The legacy `cycle_mode` (dev/prod) system has been fully retired across council, officium, mcp, and the dotfiles symlink — old endpoints/tools/types remain as deprecated aliases until +90 days post-migration. Migration spec: `hapax-council/docs/officium-design-language.md` §9.
+
 ## CLAUDE.md governance
 
-The rotation policy and rubric for every workspace CLAUDE.md is in `hapax-council/docs/superpowers/specs/2026-04-13-claude-md-excellence-design.md`. Bug-fix retrospectives, PR fingerprints, and incident narratives do not belong in CLAUDE.md — they belong in commit messages and handoff docs. Run `hapax-council/scripts/check-claude-md-rot.sh` for an ad-hoc audit.
+The rotation policy and rubric for every workspace CLAUDE.md is in `hapax-council/docs/superpowers/specs/2026-04-13-claude-md-excellence-design.md`. Bug-fix retrospectives, PR fingerprints, and incident narratives do not belong in CLAUDE.md — they belong in commit messages and handoff docs. Run `hapax-council/scripts/check-claude-md-rot.sh` for an ad-hoc audit. The monthly `claude-md-audit.timer` (council systemd unit) sweeps the workspace and ntfy's on findings.
+
+> This file is a symlink: `~/projects/CLAUDE.md → ~/dotfiles/workspace-CLAUDE.md`. Edits go via the dotfiles repo (`ryanklee/dotfiles`), not via `~/projects`.
