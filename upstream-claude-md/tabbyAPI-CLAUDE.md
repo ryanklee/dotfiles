@@ -58,9 +58,15 @@ If `config.yml` conflicts with upstream changes (rare — it has been stable), k
 - Health monitoring: `hapax-council/agents/health_monitor/` checks the `:5000` endpoint
 - Model inventory + benchmark results: `~/hapax-state/benchmarks/`
 
+## Local source patches
+
+One local modification to upstream source. Git history keeps it visible; rebasing from upstream may conflict on this file.
+
+- `endpoints/OAI/utils/chat_completion.py` — **harmony-style tool-call extractor** (2026-04-13). Qwen3.5-9B's chat template emits tool calls as `<tool_call><function=NAME><parameter=KEY>VALUE</parameter>...</function></tool_call>` without declaring a `tool_start` template variable, so TabbyAPI's `generate_tool_calls` re-generation path is skipped and the raw XML leaks through as `message.content`. A fallback extractor (`_extract_native_tool_calls`) runs in `_create_response` when `generation["tool_calls"]` is empty, parses the XML, and populates `message.tool_calls` with proper OpenAI objects. Inert if a future template update declares `tool_start`. Without this, pydantic-ai structured outputs on the `reasoning` route (thinking mode) deadlock into a validation-error retry loop that blows TabbyAPI's `max_seq_len=4096` KV page budget — the original bug killed `hapax-imagination-loop` for 62h (2026-04-10 21:41 CDT → 2026-04-13 ~12:00). See the patch in `endpoints/OAI/utils/chat_completion.py` marked `HAPAX LOCAL PATCH`.
+
 ## Gotchas
 
-- **Do not edit upstream source files.** Config and model swaps only.
+- **Edit upstream source only with a clear local-patch comment and CLAUDE.md entry.** Config and model swaps are always fine.
 - **GPU isolation contract**: nothing else may use `CUDA_VISIBLE_DEVICES=0` while tabbyapi is running. Ollama systemd unit explicitly sets `CUDA_VISIBLE_DEVICES=""` to enforce this.
 - **Restart cost**: model load takes ~30–60 s on EXL3. Don't restart tabbyapi for transient errors — investigate logs first.
 - **Auth disabled**: `disable_auth: true` is correct for this single-operator workstation. Re-enabling would break the LiteLLM gateway and the benchmark script.

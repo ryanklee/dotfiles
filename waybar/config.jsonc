@@ -2,7 +2,7 @@
     {
         "layer": "top",
         "position": "top",
-        "output": "HDMI-A-1",
+        "output": "DP-2",
         "height": 28,
         "margin-top": 4,
         "margin-left": 6,
@@ -12,8 +12,9 @@
         "modules-left": [
             "hyprland/workspaces",
             "hyprland/submap",
-            
-            "mpris"
+
+            "mpris",
+            "custom/build"
         ],
         "modules-center": [
             "hyprland/window"
@@ -26,6 +27,7 @@
             "cpu",
             "memory",
             "disk",
+            "disk#store",
             "disk#data",
             "custom/docker",
             "pulseaudio",
@@ -36,6 +38,7 @@
             "idle_inhibitor",
             "systemd-failed-units",
             "custom/notification",
+            "custom/dismiss-notifs",
             "custom/clipboard",
             "custom/weather",
             "clock",
@@ -44,7 +47,7 @@
 
         "hyprland/workspaces": {
             "format": "{id}",
-            "persistent-workspaces": { "HDMI-A-1": [1, 2, 3, 4, 5] },
+            "persistent-workspaces": { "DP-2": [1, 2, 3, 4, 5] },
             "sort-by-number": true
         },
         "hyprland/submap": {
@@ -65,24 +68,9 @@
             "on-scroll-down": "playerctl previous",
             "ignored-players": ["firefox"]
         },
-        "cava": {
-            "framerate": 30,
-            "autosens": 1,
-            "bars": 12,
-            "lower_cutoff_freq": 50,
-            "higher_cutoff_freq": 10000,
-            "method": "pipewire",
-            "source": "auto",
-            "stereo": true,
-            "bar_delimiter": 0,
-            "noise_reduction": 77,
-            "hide_on_silence": true,
-            "sleep_timer": 5,
-            "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
-        },
         "clock": {
-            "format": " {:%H:%M}",
-            "format-alt": " {:%m-%d %H:%M:%S}",
+            "format": "󰥔 {:%H:%M}",
+            "format-alt": "󰥔 {:%m-%d %H:%M:%S}",
             "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
             "interval": 60
         },
@@ -90,20 +78,20 @@
             "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
             "input-filename": "temp1_input",
             "critical-threshold": 85,
-            "format": " {temperatureC}°",
-            "format-critical": " {temperatureC}°",
-            "interval": 3,
+            "format": "󰔏 {temperatureC}°",
+            "format-critical": "󰸁 {temperatureC}°",
+            "interval": 10,
             "tooltip-format": "<b>CPU Tctl</b>: {temperatureC}°C"
         },
         "cpu": {
-            "format": " {usage}%",
-            "interval": 3,
+            "format": "󰘚 {usage}%",
+            "interval": 10,
             "tooltip-format": "<b>CPU</b>\n{avg_frequency} GHz\n{usage}% usage\nLoad: {load}",
             "on-click": "foot -e htop",
             "on-click-right": "foot -e btop"
         },
         "memory": {
-            "format": " {percentage}%",
+            "format": "󰍛 {percentage}%",
             "interval": 5,
             "tooltip-format": "<b>Memory</b>\n{used:0.1f}G / {total:0.1f}G\n{swapUsed:0.1f}G swap",
             "on-click": "foot -e htop"
@@ -115,17 +103,25 @@
             "states": { "warning": 80, "critical": 90 },
             "tooltip-format": "<b>Root /</b>\n{used} / {total}\n{percentage_used}% used\n{free} free"
         },
+        "disk#store": {
+            "format": "󰗮 {percentage_used}%",
+            "path": "/store",
+            "interval": 60,
+            "states": { "warning": 70, "critical": 85 },
+            "tooltip-format": "<b>/store (LLM data)</b>\nQdrant, Postgres, ClickHouse, Prometheus, Grafana\n{used} / {total}\n{percentage_used}% used\n{free} free"
+        },
         "disk#data": {
-            "format": "󰋊 {percentage_used}%",
+            "format": "󱁿 {percentage_used}%",
             "path": "/data",
             "interval": 120,
-            "tooltip-format": "<b>/data</b>\n{used} / {total}\n{percentage_used}% used"
+            "states": { "warning": 80, "critical": 90 },
+            "tooltip-format": "<b>/data</b>\n{used} / {total}\n{percentage_used}% used\n{free} free"
         },
         "custom/gpu": {
             "exec": "~/.local/bin/waybar-scripts/gpu-status.sh",
             "return-type": "json",
-            "format": "󰢮 {}",
-            "interval": 5,
+            "format": "󰾲 {}",
+            "interval": 10,
             "on-click": "foot -e nvtop",
             "tooltip": true
         },
@@ -137,8 +133,8 @@
             "on-click": "foot -e bash -c 'docker ps -a --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"; echo; read -p \"Press enter...\"'"
         },
         "pulseaudio": {
-            "format": " {volume}%",
-            "format-muted": " mute",
+            "format": "󰕾 {volume}%",
+            "format-muted": "󰖁 mute",
             "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
             "on-click-right": "pwvucontrol &disown",
             "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 2%+",
@@ -147,17 +143,17 @@
         },
         "pulseaudio#mic": {
             "format": "{format_source}",
-            "format-source": " {volume}%",
-            "format-source-muted": " off",
+            "format-source": "󰍬 {volume}%",
+            "format-source-muted": "󰍭 mute",
             "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
             "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SOURCE@ 2%+",
             "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 2%-",
             "tooltip-format": "<b>Mic</b>: {source_desc}\nVolume: {source_volume}%"
         },
         "network": {
-            "format-ethernet": "󰈀 {ipaddr}",
+            "format-ethernet": "󰛳 {ipaddr}",
             "format-wifi": "󰤨 {essid} {signalStrength}%",
-            "format-disconnected": "󰤮 --",
+            "format-disconnected": "󰤭 --",
             "tooltip-format": "<b>{ifname}</b>\n{ipaddr}/{cidr}\n {bandwidthUpBits}   {bandwidthDownBits}",
             "interval": 5,
             "on-click": "nm-connection-editor",
@@ -166,7 +162,7 @@
         "custom/tailscale": {
             "exec": "~/.local/bin/waybar-scripts/tailscale-status.sh",
             "return-type": "json",
-            "format": "󰖂 {}",
+            "format": "󰒄 {}",
             "interval": 10,
             "on-click": "tailscale up",
             "on-click-right": "tailscale down"
@@ -193,35 +189,25 @@
             "format": " {nr_failed}",
             "format-ok": "",
             "hide-on-ok": true,
-            "user": true,
-            "system": true
+            "user": true
         },
         "custom/notification": {
             "tooltip": false,
-            "format": "{icon} {text}",
-            "format-icons": {
-                "notification": "󰂚",
-                "none": "󰂜",
-                "dnd-notification": "󰂛",
-                "dnd-none": "󰂛",
-                "inhibited-notification": "󰂚",
-                "inhibited-none": "󰂜",
-                "dnd-inhibited-notification": "󰂛",
-                "dnd-inhibited-none": "󰂛"
-            },
+            "format": "{}",
             "return-type": "json",
-            "exec-if": "which swaync-client",
-            "exec": "swaync-client -swb",
-            "on-click": "swaync-client -t -sw",
-            "on-click-right": "swaync-client -d -sw",
-            "escape": true
+            "exec-if": "which makoctl",
+            "exec": "~/.local/bin/waybar-scripts/mako-status.sh",
+            "on-click": "makoctl invoke",
+            "on-click-right": "makoctl mode -t do-not-disturb",
+            "interval": 5,
+            "signal": 2
         },
         "custom/clipboard": {
             "exec": "~/.local/bin/waybar-scripts/cliphist-count.sh",
             "return-type": "json",
             "format": "󰅇 {}",
             "interval": 10,
-            "on-click": "cliphist list | rofi -dmenu -p 'Clipboard' | cliphist decode | wl-copy",
+            "on-click": "cliphist list | fuzzel -d -p 'Clipboard: ' | cliphist decode | wl-copy",
             "on-click-right": "cliphist wipe"
         },
         "custom/weather": {
@@ -230,6 +216,14 @@
             "format": "{}",
             "interval": 3600,
             "tooltip": true
+        },
+        "custom/build": {
+            "exec": "~/.local/bin/waybar-scripts/build-status.sh",
+            "return-type": "json",
+            "format": "{}",
+            "interval": 10,
+            "on-click": "journalctl --user -u hapax-build-reload.service -u hapax-rebuild-logos.service --since '1 hour ago' --no-pager | tail -30 | foot -e less",
+            "on-click-right": "systemctl --user start hapax-rebuild-logos.service"
         },
         "custom/hapax-status": {
             "exec": "~/.local/bin/waybar-scripts/hapax-status.sh",
@@ -240,11 +234,16 @@
             "on-click": "xdg-open http://localhost:8051",
             "on-click-right": "xdg-open http://localhost:3000"
         },
+        "custom/dismiss-notifs": {
+            "format": "󰅖",
+            "tooltip": "Dismiss all notifications",
+            "on-click": "makoctl dismiss --all"
+        },
         "custom/working-mode": {
             "exec": "~/.local/bin/waybar-scripts/working-mode.sh",
             "return-type": "json",
             "format": "{}",
-            "interval": 5,
+            "interval": 30,
             "signal": 10,
             "on-click": "~/.local/bin/hapax-working-mode $([ $(~/.local/bin/hapax-working-mode) = rnd ] && echo research || echo rnd)"
         },
@@ -265,7 +264,10 @@
 
         "modules-left": [
             "hyprland/workspaces",
-            "hyprland/submap"
+            "hyprland/submap",
+
+            "mpris",
+            "custom/build"
         ],
         "modules-center": [
             "hyprland/window"
@@ -274,9 +276,26 @@
             "custom/working-mode",
             "custom/hapax-status",
             "custom/gpu",
+            "temperature",
             "cpu",
             "memory",
-            "clock"
+            "disk",
+            "disk#store",
+            "disk#data",
+            "custom/docker",
+            "pulseaudio",
+            "pulseaudio#mic",
+            "privacy",
+            "network",
+            "custom/tailscale",
+            "idle_inhibitor",
+            "systemd-failed-units",
+            "custom/notification",
+            "custom/dismiss-notifs",
+            "custom/clipboard",
+            "custom/weather",
+            "clock",
+            "tray"
         ],
 
         "hyprland/workspaces": {
@@ -284,29 +303,206 @@
             "persistent-workspaces": { "DP-1": [11, 12, 13, 14, 15] },
             "sort-by-number": true
         },
-        "hyprland/submap": { "format": " {s}", "tooltip": false },
-        "hyprland/window": { "max-length": 45, "separate-outputs": true },
-        "clock": { "format": " {:%H:%M}", "interval": 60 },
-        "cpu": { "format": " {usage}%", "interval": 3 },
-        "memory": { "format": " {percentage}%", "interval": 5 },
+        "hyprland/submap": {
+            "format": " {s}",
+            "tooltip": false
+        },
+        "hyprland/window": {
+            "max-length": 50,
+            "separate-outputs": true
+        },
+        "mpris": {
+            "format": " {artist} - {title}",
+            "format-paused": " {artist} - {title}",
+            "max-length": 35,
+            "interval": 3,
+            "on-click": "playerctl play-pause",
+            "on-scroll-up": "playerctl next",
+            "on-scroll-down": "playerctl previous",
+            "ignored-players": ["firefox"]
+        },
+        "clock": {
+            "format": "󰥔 {:%H:%M}",
+            "format-alt": "󰥔 {:%m-%d %H:%M:%S}",
+            "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+            "interval": 60
+        },
+        "temperature": {
+            "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
+            "input-filename": "temp1_input",
+            "critical-threshold": 85,
+            "format": "󰔏 {temperatureC}°",
+            "format-critical": "󰸁 {temperatureC}°",
+            "interval": 10,
+            "tooltip-format": "<b>CPU Tctl</b>: {temperatureC}°C"
+        },
+        "cpu": {
+            "format": "󰘚 {usage}%",
+            "interval": 10,
+            "tooltip-format": "<b>CPU</b>\n{avg_frequency} GHz\n{usage}% usage\nLoad: {load}",
+            "on-click": "foot -e htop",
+            "on-click-right": "foot -e btop"
+        },
+        "memory": {
+            "format": "󰍛 {percentage}%",
+            "interval": 5,
+            "tooltip-format": "<b>Memory</b>\n{used:0.1f}G / {total:0.1f}G\n{swapUsed:0.1f}G swap",
+            "on-click": "foot -e htop"
+        },
+        "disk": {
+            "format": "󰋊 {percentage_used}%",
+            "path": "/",
+            "interval": 60,
+            "states": { "warning": 80, "critical": 90 },
+            "tooltip-format": "<b>Root /</b>\n{used} / {total}\n{percentage_used}% used\n{free} free"
+        },
+        "disk#store": {
+            "format": "󰗮 {percentage_used}%",
+            "path": "/store",
+            "interval": 60,
+            "states": { "warning": 70, "critical": 85 },
+            "tooltip-format": "<b>/store (LLM data)</b>\nQdrant, Postgres, ClickHouse, Prometheus, Grafana\n{used} / {total}\n{percentage_used}% used\n{free} free"
+        },
+        "disk#data": {
+            "format": "󱁿 {percentage_used}%",
+            "path": "/data",
+            "interval": 120,
+            "states": { "warning": 80, "critical": 90 },
+            "tooltip-format": "<b>/data</b>\n{used} / {total}\n{percentage_used}% used\n{free} free"
+        },
         "custom/gpu": {
             "exec": "~/.local/bin/waybar-scripts/gpu-status.sh",
             "return-type": "json",
-            "format": "󰢮 {}",
-            "interval": 5
+            "format": "󰾲 {}",
+            "interval": 10,
+            "on-click": "foot -e nvtop",
+            "tooltip": true
+        },
+        "custom/docker": {
+            "exec": "~/.local/bin/waybar-scripts/docker-status.sh",
+            "return-type": "json",
+            "format": " {}",
+            "interval": 15,
+            "on-click": "foot -e bash -c 'docker ps -a --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"; echo; read -p \"Press enter...\"'"
+        },
+        "pulseaudio": {
+            "format": "󰕾 {volume}%",
+            "format-muted": "󰖁 mute",
+            "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+            "on-click-right": "pwvucontrol &disown",
+            "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 2%+",
+            "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
+            "tooltip-format": "<b>Output</b>: {desc}\nVolume: {volume}%"
+        },
+        "pulseaudio#mic": {
+            "format": "{format_source}",
+            "format-source": "󰍬 {volume}%",
+            "format-source-muted": "󰍭 mute",
+            "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+            "on-scroll-up": "wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SOURCE@ 2%+",
+            "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 2%-",
+            "tooltip-format": "<b>Mic</b>: {source_desc}\nVolume: {source_volume}%"
+        },
+        "network": {
+            "format-ethernet": "󰛳 {ipaddr}",
+            "format-wifi": "󰤨 {essid} {signalStrength}%",
+            "format-disconnected": "󰤭 --",
+            "tooltip-format": "<b>{ifname}</b>\n{ipaddr}/{cidr}\n {bandwidthUpBits}   {bandwidthDownBits}",
+            "interval": 5,
+            "on-click": "nm-connection-editor",
+            "on-click-right": "foot -e nmtui"
+        },
+        "custom/tailscale": {
+            "exec": "~/.local/bin/waybar-scripts/tailscale-status.sh",
+            "return-type": "json",
+            "format": "󰒄 {}",
+            "interval": 10,
+            "on-click": "tailscale up",
+            "on-click-right": "tailscale down"
+        },
+        "idle_inhibitor": {
+            "format": "{icon}",
+            "format-icons": {
+                "activated": "",
+                "deactivated": ""
+            },
+            "tooltip-format-activated": "Idle inhibitor: <b>ON</b>\nScreen will not lock",
+            "tooltip-format-deactivated": "Idle inhibitor: off"
+        },
+        "privacy": {
+            "icon-spacing": 4,
+            "icon-size": 14,
+            "transition-duration": 250,
+            "modules": [
+                {"type": "screenshare", "tooltip": true, "tooltip-icon-size": 16},
+                {"type": "audio-in", "tooltip": true, "tooltip-icon-size": 16}
+            ]
+        },
+        "systemd-failed-units": {
+            "format": " {nr_failed}",
+            "format-ok": "",
+            "hide-on-ok": true,
+            "user": true
+        },
+        "custom/notification": {
+            "tooltip": false,
+            "format": "{}",
+            "return-type": "json",
+            "exec-if": "which makoctl",
+            "exec": "~/.local/bin/waybar-scripts/mako-status.sh",
+            "on-click": "makoctl invoke",
+            "on-click-right": "makoctl mode -t do-not-disturb",
+            "interval": 5,
+            "signal": 2
+        },
+        "custom/clipboard": {
+            "exec": "~/.local/bin/waybar-scripts/cliphist-count.sh",
+            "return-type": "json",
+            "format": "󰅇 {}",
+            "interval": 10,
+            "on-click": "cliphist list | fuzzel -d -p 'Clipboard: ' | cliphist decode | wl-copy",
+            "on-click-right": "cliphist wipe"
+        },
+        "custom/weather": {
+            "exec": "~/.local/bin/waybar-scripts/weather.sh",
+            "return-type": "json",
+            "format": "{}",
+            "interval": 3600,
+            "tooltip": true
+        },
+        "custom/build": {
+            "exec": "~/.local/bin/waybar-scripts/build-status.sh",
+            "return-type": "json",
+            "format": "{}",
+            "interval": 10,
+            "on-click": "journalctl --user -u hapax-build-reload.service -u hapax-rebuild-logos.service --since '1 hour ago' --no-pager | tail -30 | foot -e less",
+            "on-click-right": "systemctl --user start hapax-rebuild-logos.service"
         },
         "custom/hapax-status": {
             "exec": "~/.local/bin/waybar-scripts/hapax-status.sh",
             "return-type": "json",
             "format": "{}",
-            "interval": 30
+            "interval": 30,
+            "signal": 1,
+            "on-click": "xdg-open http://localhost:8051",
+            "on-click-right": "xdg-open http://localhost:3000"
+        },
+        "custom/dismiss-notifs": {
+            "format": "󰅖",
+            "tooltip": "Dismiss all notifications",
+            "on-click": "makoctl dismiss --all"
         },
         "custom/working-mode": {
             "exec": "~/.local/bin/waybar-scripts/working-mode.sh",
             "return-type": "json",
             "format": "{}",
-            "interval": 5,
-            "signal": 10
+            "interval": 30,
+            "signal": 10,
+            "on-click": "~/.local/bin/hapax-working-mode $([ $(~/.local/bin/hapax-working-mode) = rnd ] && echo research || echo rnd)"
+        },
+        "tray": {
+            "icon-size": 14,
+            "spacing": 4
         }
     }
 ]

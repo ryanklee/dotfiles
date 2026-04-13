@@ -22,10 +22,15 @@ window#waybar {
 #memory,
 #disk,
 #temperature,
+#custom-build,
 #custom-hapax-status,
 #custom-working-mode,
 #custom-gpu,
 #custom-docker,
+#custom-tailscale,
+#custom-notification,
+#custom-clipboard,
+#custom-weather,
 #pulseaudio,
 #network,
 #idle_inhibitor,
@@ -75,16 +80,9 @@ window#waybar {
     color: #ebdbb2;
 }
 
-#cpu, #memory, #disk, #temperature {
-    color: #928374;
-}
-
-#temperature.critical {
-    color: #fb4934;
-}
-
+/* Tier 2 — Active resources: each a distinct accent */
 #custom-gpu {
-    color: #928374;
+    color: #d3869b;
 }
 
 #custom-gpu.warning {
@@ -93,6 +91,27 @@ window#waybar {
 
 #custom-gpu.critical {
     color: #fb4934;
+}
+
+#temperature {
+    color: #fe8019;
+}
+
+#temperature.critical {
+    color: #fb4934;
+}
+
+#cpu {
+    color: #83a598;
+}
+
+#memory {
+    color: #8ec07c;
+}
+
+/* Tier 3 — Infrastructure: shared warm gray */
+#disk {
+    color: #a89984;
 }
 
 #custom-working-mode {
@@ -115,6 +134,35 @@ window#waybar {
     padding: 0 6px;
 }
 
+#custom-build {
+    color: #1d2021;
+    background-color: #b8bb26;
+    font-weight: bold;
+    padding: 0 6px;
+    margin: 4px 2px;
+    border-radius: 3px;
+}
+
+#custom-build.stale {
+    background-color: #fe8019;
+    color: #1d2021;
+}
+
+#custom-build.building {
+    background-color: #83a598;
+    color: #1d2021;
+}
+
+#custom-build.warning {
+    background-color: #fabd2f;
+    color: #1d2021;
+}
+
+#custom-build.failed {
+    background-color: #fb4934;
+    color: #1d2021;
+}
+
 #custom-hapax-status {
     color: #b8bb26;
 }
@@ -128,7 +176,7 @@ window#waybar {
 }
 
 #custom-docker {
-    color: #b8bb26;
+    color: #a89984;
 }
 
 #custom-docker.warning {
@@ -136,11 +184,11 @@ window#waybar {
 }
 
 #pulseaudio {
-    color: #928374;
+    color: #7c6f64;
 }
 
 #pulseaudio.muted {
-    color: #3c3836;
+    color: #504945;
 }
 
 #network {
@@ -149,6 +197,32 @@ window#waybar {
 
 #network.disconnected {
     color: #fb4934;
+}
+
+#custom-tailscale {
+    color: #b8bb26;
+}
+
+#custom-tailscale.disconnected {
+    color: #665c54;
+}
+
+#custom-clipboard {
+    color: #665c54;
+}
+
+#custom-dismiss-notifs {
+    color: #fb4934;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 0 12px;
+    margin: 2px 2px;
+    border-radius: 3px;
+}
+
+#custom-dismiss-notifs:hover {
+    background-color: #fb4934;
+    color: #1d2021;
 }
 
 #systemd-failed-units {
