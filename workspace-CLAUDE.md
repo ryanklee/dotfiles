@@ -7,16 +7,16 @@ Guidance for Claude Code across the multi-project workspace.
 Nine repositories, three core:
 
 - **hapax-constitution** — Governance specification (axioms, implications, canons). Spec-only, no runtime code. Publishes `hapax-sdlc` package.
-- **hapax-council** — Personal operating environment. 85+ agents, voice daemon, studio compositor, reactive engine. Logos API on `:8051`.
+- **hapax-council** — Personal operating environment. 200+ agents, voice daemon, studio compositor, reactive engine. Logos API on `:8051`.
 - **hapax-officium** — Management decision support. Filesystem-as-bus data model. Logos API on `:8050`.
 - **hapax-watch** — Wear OS companion app. Streams biometric sensor data (heart rate, HRV, skin temperature, sleep) to council logos API.
-- **hapax-phone** — Android companion app. Kotlin/Compose.
+- **hapax-phone** — Android companion app. Kotlin/Compose. Streams daily health summaries + 60s phone context to council.
 - **hapax-mcp** — MCP server (36 tools) bridging logos APIs to Claude Code tools.
-- **tabbyAPI** — External LLM inference server (ExllamaV2/V3). Backend.
-- **atlas-voice-training** — Custom wake word training pipeline (Docker-based openWakeWord fine-tuning).
+- **tabbyAPI** — External LLM inference server (ExllamaV2/V3). Upstream clone of `theroyallab/tabbyAPI`. See § External Dependencies.
+- **atlas-voice-training** — Custom wake word training pipeline (Docker-based openWakeWord fine-tuning). Upstream clone of `briankelley/atlas-voice-training`.
 - **distro-work** — System maintenance scripts and research docs. Not a software project.
 
-Each sub-project has its own CLAUDE.md — always read it before working in that project.
+Each sub-project has its own CLAUDE.md — always read it before working in that project. The two upstream clones (tabbyAPI, atlas-voice-training) carry local-only CLAUDE.md files via `.git/info/exclude`; do not push them.
 
 **Obsidian vault** at `~/Documents/Personal/` — single source of truth for all life planning (goals, sprint measures, daily notes, people, creative work). Kebab-case filenames/dirs, PARA structure. `obsidian-hapax` plugin bridges vault to Logos API. Vault-native goal notes feed the orientation panel. See hapax-council CLAUDE.md § Obsidian Integration.
 
@@ -87,6 +87,18 @@ hapax-council ──► hapax-sdlc (git+ dep)
 hapax-officium ──► hapax-sdlc[demo] (git+ dep)
 
 hapax-watch ──► council logos API (HTTP, biometrics)
+hapax-phone ──► council logos API (HTTP, health summary + phone context)
 hapax-mcp ──► council/officium logos APIs (HTTP)
 tabbyAPI ──► (standalone inference backend)
 ```
+
+## External Dependencies
+
+Two repositories in this workspace are upstream clones — git points at someone else's GitHub. Local commits stay local; CLAUDE.md files for these repos are added via `.git/info/exclude` so they never enter the upstream's tracked tree.
+
+- **tabbyAPI** (upstream `theroyallab/tabbyAPI`) — runs as a systemd user unit, serves Qwen3.5-9B EXL3 on `:5000`. LiteLLM routes `local-fast`, `coding`, `reasoning` here. Local config in `tabbyAPI/config.yml`. Models in `tabbyAPI/models/`. The systemd unit lives in the council repo, not here.
+- **atlas-voice-training** (upstream `briankelley/atlas-voice-training`) — Docker-based openWakeWord fine-tuning pipeline. Trained `.tflite` models drop into `~/.local/share/openwakeword/`, where hapax-daimonion auto-discovers them.
+
+## CLAUDE.md governance
+
+The rotation policy and rubric for every workspace CLAUDE.md is in `hapax-council/docs/superpowers/specs/2026-04-13-claude-md-excellence-design.md`. Bug-fix retrospectives, PR fingerprints, and incident narratives do not belong in CLAUDE.md — they belong in commit messages and handoff docs. Run `hapax-council/scripts/check-claude-md-rot.sh` for an ad-hoc audit.
