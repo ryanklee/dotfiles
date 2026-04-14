@@ -50,7 +50,9 @@ if status is-interactive
 end
 alias llms='cd ~/llm-stack'
 
-# CUDA / GPU compute
+# CUDA / GPU compute — pin interactive shells to the RTX 3090 by UUID so a
+# topology change (adding/removing cards, BIOS reenumeration) doesn't swap
+# this out from under interactive Python work.
 set -gx CUDA_DEVICE_ORDER PCI_BUS_ID
-set -gx CUDA_VISIBLE_DEVICES 0
+set -gx CUDA_VISIBLE_DEVICES GPU-2d94387f-adb2-51b2-b40f-0c576022d1a9
 set -gx PYTORCH_CUDA_ALLOC_CONF expandable_segments:True,garbage_collection_threshold:0.8
