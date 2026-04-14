@@ -51,7 +51,7 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 
 **Docker containers** (13, `restart: always`):
 - **LiteLLM** — API gateway (`:4000` council, `:4100` officium), routes to Claude/Gemini/TabbyAPI. Redis response caching enabled (1h TTL). No local model fallback chains — TabbyAPI failures degrade gracefully in agents.
-- **Qdrant** — Vector DB (9 collections: profile-facts, documents, axiom-precedents, operator-episodes, studio-moments, operator-corrections, affordances, hapax-apperceptions, operator-patterns). Canonical schema in `shared/qdrant_schema.py`.
+- **Qdrant** — Vector DB (10 collections: profile-facts, documents, axiom-precedents, operator-episodes, studio-moments, operator-corrections, affordances, hapax-apperceptions, operator-patterns, stream-reactions). Canonical schema in `shared/qdrant_schema.py`.
 - **PostgreSQL** — Audit/observability
 - **Langfuse** — LLM observability (`:3000`)
 - **Prometheus** + **Grafana** — Metrics and dashboards
