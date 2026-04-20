@@ -60,6 +60,7 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 **Host services** (systemd user units, lingering):
 - **TabbyAPI** — Primary local inference (`:5000`), serves Qwen3.5-9B (EXL3 5.0bpw, 9B dense DeltaNet). LiteLLM routes `local-fast`, `coding`, `reasoning` here.
 - **Ollama** — CPU embedding only (nomic-embed-cpu). GPU-isolated via `CUDA_VISIBLE_DEVICES=""` in systemd unit — TabbyAPI exclusively owns the GPU. `qwen3:8b` deleted and LiteLLM route removed. Python MODELS dict must use LiteLLM route names (`local-fast`, `coding`, `reasoning`), never Ollama model names directly.
+- **rag-ingest** — Document ingestion watchdog (inotify-only drip mode, no bulk rescan timer). CPU-only via `Environment=CUDA_VISIBLE_DEVICES=""` in `systemd/overrides/rag-ingest.service.d/gpu-isolate.conf` — docling's PyTorch layout/OCR models would otherwise land on CUDA and race TabbyAPI for VRAM. Same isolation pattern as Ollama. Bulk rescan is on-demand only: `.venv-ingest/bin/python -m agents.ingest --bulk-only`.
 - **hapax-secrets** — Centralized credential loading (oneshot, all services depend on this)
 - **logos-api** / **officium-api** — FastAPI on `:8051` / `:8050`
 - **hapax-logos** — Native visual + wgpu rendering surface
