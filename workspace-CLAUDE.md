@@ -33,10 +33,11 @@ Each sub-project has its own CLAUDE.md — always read it before working in that
 ## Git Workflow
 
 - Conventional commits, feature branches from `main`.
-- **Three worktree slots, strictly enforced:**
-  - `hapax-council/` — **alpha** session (permanent, primary)
-  - `hapax-council--beta/` — **beta** session (permanent)
-  - `hapax-council--<slug>/` — **one spontaneous** worktree (temporary, must be cleaned up before new work)
+- **Interface-qualified worktree slots, strictly enforced:**
+  - `hapax-council/` — primary/integrator worktree
+  - `hapax-council--<greek>` / legacy descriptive variants — Claude Code permanent lanes
+  - `hapax-council--cx-<color>` — Codex first-class lanes
+  - `hapax-council--<slug>` — one spontaneous non-session worktree
 - Each session works in its own worktree. One branch at a time per session. No branch switching into another session's worktree.
 - **Dev workflow:** `pnpm tauri dev` for development (Vite runs internally, serves to Tauri webview only). Production binary bundles the frontend — build with `pnpm tauri build`, install to `~/.local/bin/hapax-logos`.
 - **Rebase alpha after beta merges:** After merging PRs from beta, rebase alpha onto main.
@@ -50,15 +51,14 @@ Each sub-project has its own CLAUDE.md — always read it before working in that
 All running locally. Docker Compose for infrastructure, systemd user units for application services. No process-compose in production boot chain.
 
 **Docker containers** (13, `restart: always`):
-- **LiteLLM** — API gateway (`:4000` council, `:4100` officium), routes to Claude/Gemini/TabbyAPI. Redis response caching enabled (1h TTL). No local model fallback chains — TabbyAPI failures degrade gracefully in agents.
-- **Qdrant** — Vector DB (10 collections: profile-facts, documents, axiom-precedents, operator-episodes, studio-moments, operator-corrections, affordances, hapax-apperceptions, operator-patterns, stream-reactions). Canonical schema in `shared/qdrant_schema.py`.
-- **PostgreSQL** — Audit/observability
-- **Langfuse** — LLM observability (`:3000`)
-- **Prometheus** + **Grafana** — Metrics and dashboards
-- **Redis**, **ClickHouse**, **MinIO** (Langfuse blob store on `/data`; 14-day lifecycle rule on `events/` prefix prevents inode exhaustion), **n8n**, **ntfy**, **OpenWebUI**
+- **LiteLLM** — API gateway (`:4000` council, `:4100` officium), routes to Claude/Gemini/TabbyAPI. Redis response caching (1h TTL). No local model fallback chains — TabbyAPI failures degrade gracefully in agents.
+- **Qdrant** — Vector DB. Canonical schema in `shared/qdrant_schema.py` (10 collections; `operator-patterns` is dead-schema, do not add writers).
+- **Langfuse** — LLM observability (`:3000`); blob store on MinIO `/data` with 14-day lifecycle rule on `events/` (prevents inode exhaustion).
+- **Prometheus** + **Grafana** — Metrics and dashboards.
+- Plus: PostgreSQL (audit), Redis, ClickHouse, n8n, ntfy, OpenWebUI.
 
 **Host services** (systemd user units, lingering):
-- **TabbyAPI** — Primary local inference (`:5000`), serves Qwen3.5-9B (EXL3 5.0bpw, 9B dense DeltaNet). LiteLLM routes `local-fast`, `coding`, `reasoning` here.
+- **TabbyAPI** — Primary local inference (`:5000`), serves Command-R 35B (EXL3 5.0bpw). LiteLLM routes `local-fast`, `coding`, `reasoning` here. See `hapax-council/CLAUDE.md § Architecture` for `gpu_split` / cache details.
 - **Ollama** — CPU embedding only (nomic-embed-cpu). GPU-isolated via `CUDA_VISIBLE_DEVICES=""` in systemd unit — TabbyAPI exclusively owns the GPU. `qwen3:8b` deleted and LiteLLM route removed. Python MODELS dict must use LiteLLM route names (`local-fast`, `coding`, `reasoning`), never Ollama model names directly.
 - **rag-ingest** — Document ingestion watchdog (inotify-only drip mode, no bulk rescan timer). CPU-only via `Environment=CUDA_VISIBLE_DEVICES=""` in `systemd/overrides/rag-ingest.service.d/gpu-isolate.conf` — docling's PyTorch layout/OCR models would otherwise land on CUDA and race TabbyAPI for VRAM. Same isolation pattern as Ollama. Bulk rescan is on-demand only: `.venv-ingest/bin/python -m agents.ingest --bulk-only`.
 - **hapax-secrets** — Centralized credential loading (oneshot, all services depend on this)
@@ -72,7 +72,7 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 - **hapax-daimonion** — Persistent voice daemon (STT on GPU, TTS on CPU via Kokoro 82M)
 - **studio-compositor** — GPU camera tiling/recording/HLS
 - **visual-layer-aggregator** — Perception → Stimmung → /dev/shm
-- 49 timers (sync agents, health monitor, VRAM watchdog, backups, storage arbiter, rebuilds)
+- 87 timers (sync agents, health monitor, VRAM watchdog, backups, storage arbiter, rebuilds)
 
 **24/7 recovery**: Kernel panic auto-reboot (10s), hardware watchdog (SP5100 TCO, 30s), greetd autologin, lingering. See `hapax-council/systemd/README.md`.
 
@@ -80,29 +80,18 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 
 ## Inter-Project Dependencies
 
-```
-hapax-constitution (spec)
-  └─ publishes hapax-sdlc package
-
-hapax-council ──► hapax-sdlc (git+ dep)
-hapax-officium ──► hapax-sdlc[demo] (git+ dep)
-
-hapax-watch ──► council logos API (HTTP, biometrics)
-hapax-phone ──► council logos API (HTTP, health summary + phone context)
-hapax-mcp ──► council/officium logos APIs (HTTP)
-tabbyAPI ──► (standalone inference backend)
-```
+`hapax-constitution` publishes the `hapax-sdlc` package, consumed by council (`hapax-sdlc`) and officium (`hapax-sdlc[demo]`). `hapax-watch` and `hapax-phone` POST biometric/context payloads to council's logos API. `hapax-mcp` bridges the council/officium logos APIs to Claude Code. `tabbyAPI` is a standalone inference backend.
 
 ## External Dependencies
 
 Two repositories in this workspace are upstream clones — git points at someone else's GitHub. Local commits stay local; CLAUDE.md files for these repos are added via `.git/info/exclude` so they never enter the upstream's tracked tree.
 
-- **tabbyAPI** (upstream `theroyallab/tabbyAPI`) — runs as a systemd user unit, serves Qwen3.5-9B EXL3 on `:5000`. LiteLLM routes `local-fast`, `coding`, `reasoning` here. Local config in `tabbyAPI/config.yml`. Models in `tabbyAPI/models/`. The systemd unit lives in the council repo, not here.
+- **tabbyAPI** (upstream `theroyallab/tabbyAPI`) — runs as a systemd user unit, serves Command-R 35B EXL3 on `:5000`. Local config in `tabbyAPI/config.yml`; models in `tabbyAPI/models/`. The systemd unit lives in the council repo.
 - **atlas-voice-training** (upstream `briankelley/atlas-voice-training`) — Docker-based openWakeWord fine-tuning pipeline. Trained `.tflite` models drop into `~/.local/share/openwakeword/`, where hapax-daimonion auto-discovers them.
 
 ## Working mode
 
-The operator's working mode (`research`/`rnd`) is the single mode system across the entire stack. Single source of truth: `~/.cache/hapax/working-mode`, written by the `hapax-working-mode` CLI. Council adds a third mode (`fortress`) for studio livestream gating; officium intentionally omits it. The legacy `cycle_mode` (dev/prod) system has been fully retired across council, officium, mcp, and the dotfiles symlink — old endpoints/tools/types remain as deprecated aliases until +90 days post-migration. Migration spec: `hapax-council/docs/officium-design-language.md` §9.
+Operator working mode (`research`/`rnd`) is the single mode system across the stack. SSOT: `~/.cache/hapax/working-mode`, written by the `hapax-working-mode` CLI. Council adds a third mode (`fortress`) for studio livestream gating; officium intentionally omits it. Legacy `cycle_mode` (dev/prod) endpoints remain as deprecated aliases routing to `working-mode` server-side. Migration spec: `hapax-council/docs/officium-design-language.md` §9.
 
 ## CLAUDE.md governance
 
