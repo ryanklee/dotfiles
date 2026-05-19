@@ -22,25 +22,31 @@
         "modules-right": [
             "custom/working-mode",
             "custom/hapax-status",
+            "custom/sep1",
             "custom/gpu",
             "temperature",
             "cpu",
             "memory",
+            "custom/sep2",
             "disk",
             "disk#store",
             "disk#data",
             "custom/docker",
+            "custom/sep3",
             "pulseaudio",
             "pulseaudio#mic",
             "privacy",
+            "custom/sep4",
             "network",
             "custom/tailscale",
+            "custom/sep5",
             "idle_inhibitor",
             "systemd-failed-units",
             "custom/notification",
             "custom/dismiss-notifs",
             "custom/clipboard",
             "custom/weather",
+            "custom/sep6",
             "clock",
             "tray"
         ],
@@ -72,16 +78,21 @@
             "format": "󰥔 {:%H:%M}",
             "format-alt": "󰥔 {:%m-%d %H:%M:%S}",
             "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-            "interval": 60
+            "interval": 60,
+            "on-click": "gnome-calendar &disown"
         },
         "temperature": {
-            "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
-            "input-filename": "temp1_input",
+            "hwmon-path": [
+                "/sys/class/hwmon/hwmon1/temp1_input",
+                "/sys/class/hwmon/hwmon2/temp1_input",
+                "/sys/class/hwmon/hwmon3/temp1_input"
+            ],
             "critical-threshold": 85,
             "format": "󰔏 {temperatureC}°",
             "format-critical": "󰸁 {temperatureC}°",
             "interval": 10,
-            "tooltip-format": "<b>CPU Tctl</b>: {temperatureC}°C"
+            "tooltip-format": "<b>CPU Tctl</b>: {temperatureC}°C",
+            "on-click": "foot -e watch -n1 sensors"
         },
         "cpu": {
             "format": "󰘚 {usage}%",
@@ -189,13 +200,14 @@
             "format": " {nr_failed}",
             "format-ok": "",
             "hide-on-ok": true,
-            "user": true
+            "user": true,
+            "on-click": "foot -e bash -c 'systemctl --user --failed --no-pager; echo; read -p \"Press enter...\"'"
         },
         "custom/notification": {
             "tooltip": false,
             "format": "{}",
             "return-type": "json",
-            "exec-if": "which makoctl",
+            "exec-if": "command -v makoctl >/dev/null",
             "exec": "~/.local/bin/waybar-scripts/mako-status.sh",
             "on-click": "makoctl invoke",
             "on-click-right": "makoctl mode -t do-not-disturb",
@@ -221,7 +233,8 @@
             "exec": "~/.local/bin/waybar-scripts/build-status.sh",
             "return-type": "json",
             "format": "{}",
-            "interval": 10,
+            "interval": 60,
+            "signal": 5,
             "on-click": "journalctl --user -u hapax-build-reload.service -u hapax-rebuild-logos.service --since '1 hour ago' --no-pager | tail -30 | foot -e less",
             "on-click-right": "systemctl --user start hapax-rebuild-logos.service"
         },
@@ -243,10 +256,16 @@
             "exec": "~/.local/bin/waybar-scripts/working-mode.sh",
             "return-type": "json",
             "format": "{}",
-            "interval": 30,
+            "interval": "once",
             "signal": 10,
             "on-click": "~/.local/bin/hapax-working-mode $([ $(~/.local/bin/hapax-working-mode) = rnd ] && echo research || echo rnd)"
         },
+        "custom/sep1": { "format": "│", "tooltip": false },
+        "custom/sep2": { "format": "│", "tooltip": false },
+        "custom/sep3": { "format": "│", "tooltip": false },
+        "custom/sep4": { "format": "│", "tooltip": false },
+        "custom/sep5": { "format": "│", "tooltip": false },
+        "custom/sep6": { "format": "│", "tooltip": false },
         "tray": {
             "icon-size": 14,
             "spacing": 4
@@ -275,25 +294,31 @@
         "modules-right": [
             "custom/working-mode",
             "custom/hapax-status",
+            "custom/sep1",
             "custom/gpu",
             "temperature",
             "cpu",
             "memory",
+            "custom/sep2",
             "disk",
             "disk#store",
             "disk#data",
             "custom/docker",
+            "custom/sep3",
             "pulseaudio",
             "pulseaudio#mic",
             "privacy",
+            "custom/sep4",
             "network",
             "custom/tailscale",
+            "custom/sep5",
             "idle_inhibitor",
             "systemd-failed-units",
             "custom/notification",
             "custom/dismiss-notifs",
             "custom/clipboard",
             "custom/weather",
+            "custom/sep6",
             "clock",
             "tray"
         ],
@@ -325,16 +350,21 @@
             "format": "󰥔 {:%H:%M}",
             "format-alt": "󰥔 {:%m-%d %H:%M:%S}",
             "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-            "interval": 60
+            "interval": 60,
+            "on-click": "gnome-calendar &disown"
         },
         "temperature": {
-            "hwmon-path-abs": "/sys/devices/pci0000:00/0000:00:18.3/hwmon",
-            "input-filename": "temp1_input",
+            "hwmon-path": [
+                "/sys/class/hwmon/hwmon1/temp1_input",
+                "/sys/class/hwmon/hwmon2/temp1_input",
+                "/sys/class/hwmon/hwmon3/temp1_input"
+            ],
             "critical-threshold": 85,
             "format": "󰔏 {temperatureC}°",
             "format-critical": "󰸁 {temperatureC}°",
             "interval": 10,
-            "tooltip-format": "<b>CPU Tctl</b>: {temperatureC}°C"
+            "tooltip-format": "<b>CPU Tctl</b>: {temperatureC}°C",
+            "on-click": "foot -e watch -n1 sensors"
         },
         "cpu": {
             "format": "󰘚 {usage}%",
@@ -442,13 +472,14 @@
             "format": " {nr_failed}",
             "format-ok": "",
             "hide-on-ok": true,
-            "user": true
+            "user": true,
+            "on-click": "foot -e bash -c 'systemctl --user --failed --no-pager; echo; read -p \"Press enter...\"'"
         },
         "custom/notification": {
             "tooltip": false,
             "format": "{}",
             "return-type": "json",
-            "exec-if": "which makoctl",
+            "exec-if": "command -v makoctl >/dev/null",
             "exec": "~/.local/bin/waybar-scripts/mako-status.sh",
             "on-click": "makoctl invoke",
             "on-click-right": "makoctl mode -t do-not-disturb",
@@ -474,7 +505,8 @@
             "exec": "~/.local/bin/waybar-scripts/build-status.sh",
             "return-type": "json",
             "format": "{}",
-            "interval": 10,
+            "interval": 60,
+            "signal": 5,
             "on-click": "journalctl --user -u hapax-build-reload.service -u hapax-rebuild-logos.service --since '1 hour ago' --no-pager | tail -30 | foot -e less",
             "on-click-right": "systemctl --user start hapax-rebuild-logos.service"
         },
@@ -496,10 +528,16 @@
             "exec": "~/.local/bin/waybar-scripts/working-mode.sh",
             "return-type": "json",
             "format": "{}",
-            "interval": 30,
+            "interval": "once",
             "signal": 10,
             "on-click": "~/.local/bin/hapax-working-mode $([ $(~/.local/bin/hapax-working-mode) = rnd ] && echo research || echo rnd)"
         },
+        "custom/sep1": { "format": "│", "tooltip": false },
+        "custom/sep2": { "format": "│", "tooltip": false },
+        "custom/sep3": { "format": "│", "tooltip": false },
+        "custom/sep4": { "format": "│", "tooltip": false },
+        "custom/sep5": { "format": "│", "tooltip": false },
+        "custom/sep6": { "format": "│", "tooltip": false },
         "tray": {
             "icon-size": 14,
             "spacing": 4
