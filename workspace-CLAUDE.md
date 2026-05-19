@@ -7,11 +7,11 @@ Guidance for Claude Code across the multi-project workspace.
 Nine repositories, three core:
 
 - **hapax-constitution** — Governance specification (axioms, implications, canons). Spec-only, no runtime code. Publishes `hapax-sdlc` package.
-- **hapax-council** — Personal operating environment. 200+ agents, voice daemon, studio compositor, reactive engine. Logos API on `:8051`.
+- **hapax-council** — Personal operating environment. ~190 agents, voice daemon, studio compositor, reactive engine. Logos API on `:8051`.
 - **hapax-officium** — Management decision support. Filesystem-as-bus data model. Logos API on `:8050`.
 - **hapax-watch** — Wear OS companion app. Streams biometric sensor data (heart rate, HRV, skin temperature, sleep) to council logos API.
 - **hapax-phone** — Android companion app. Kotlin/Compose. Streams daily health summaries + 60s phone context to council.
-- **hapax-mcp** — MCP server (36 tools) bridging logos APIs to Claude Code tools.
+- **hapax-mcp** — MCP server (38 tools) bridging logos APIs to Claude Code tools.
 - **tabbyAPI** — External LLM inference server (ExllamaV2/V3). Upstream clone of `theroyallab/tabbyAPI`. See § External Dependencies.
 - **atlas-voice-training** — Custom wake word training pipeline (Docker-based openWakeWord fine-tuning). Upstream clone of `briankelley/atlas-voice-training`.
 - **distro-work** — System maintenance scripts and research docs. Not a software project.
@@ -50,9 +50,9 @@ Each sub-project has its own CLAUDE.md — always read it before working in that
 
 All running locally. Docker Compose for infrastructure, systemd user units for application services. No process-compose in production boot chain.
 
-**Docker containers** (13, `restart: always`):
+**Docker containers** (20, `restart: always`):
 - **LiteLLM** — API gateway (`:4000` council, `:4100` officium), routes to Claude/Gemini/TabbyAPI. Redis response caching (1h TTL). No local model fallback chains — TabbyAPI failures degrade gracefully in agents.
-- **Qdrant** — Vector DB. Canonical schema in `shared/qdrant_schema.py` (10 collections; `operator-patterns` is dead-schema, do not add writers).
+- **Qdrant** — Vector DB. Canonical schema in `shared/qdrant_schema.py` (11 collections; `operator-patterns` is dead-schema, do not add writers).
 - **Langfuse** — LLM observability (`:3000`); blob store on MinIO `/data` with 14-day lifecycle rule on `events/` (prevents inode exhaustion).
 - **Prometheus** + **Grafana** — Metrics and dashboards.
 - Plus: PostgreSQL (audit), Redis, ClickHouse, n8n, ntfy, OpenWebUI.
@@ -72,7 +72,7 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 - **hapax-daimonion** — Persistent voice daemon (STT on GPU, TTS on CPU via Kokoro 82M)
 - **studio-compositor** — GPU camera tiling/recording/HLS
 - **visual-layer-aggregator** — Perception → Stimmung → /dev/shm
-- 87 timers (sync agents, health monitor, VRAM watchdog, backups, storage arbiter, rebuilds)
+- 115 timers (sync agents, health monitor, VRAM watchdog, backups, storage arbiter, rebuilds)
 
 **24/7 recovery**: Kernel panic auto-reboot (10s), hardware watchdog (SP5100 TCO, 30s), greetd autologin, lingering. See `hapax-council/systemd/README.md`.
 

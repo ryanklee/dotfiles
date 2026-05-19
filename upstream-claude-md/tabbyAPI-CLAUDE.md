@@ -4,7 +4,7 @@
 
 ## Purpose
 
-ExllamaV2/V3 LLM inference server. In the hapax workspace it serves **Command-R 35B** (EXL3 5.0 bpw) on `:5000`; alternates in `models/` (Qwen3.5-9B, Qwen3.6-35B-A3B) are not the active default. LiteLLM (in the council Docker compose stack) routes `local-fast`, `coding`, `reasoning` here. See `hapax-council/CLAUDE.md § Architecture` for the GPU/cache contract.
+ExllamaV2/V3 LLM inference server. In the hapax workspace it serves **Command-R 35B** (EXL3 5.0 bpw) on `:5000`; alternates in `models/` (Command-R 4.0bpw, Qwen3.5-9B, Qwen3.6-35B-A3B-abliterated) are not the active default. LiteLLM (in the council Docker compose stack) routes `local-fast`, `coding`, `reasoning` here. See `hapax-council/CLAUDE.md § Architecture` for the GPU/cache contract.
 
 ## Local config
 
