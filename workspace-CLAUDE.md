@@ -7,11 +7,11 @@ Guidance for Claude Code across the multi-project workspace.
 Nine repositories, three core:
 
 - **hapax-constitution** — Governance specification (axioms, implications, canons). Spec-only, no runtime code. Publishes `hapax-sdlc` package.
-- **hapax-council** — Personal operating environment. ~190 agents, voice daemon, studio compositor, reactive engine. Logos API on `:8051`.
+- **hapax-council** — Personal operating environment. 200+ agents, voice daemon, studio compositor, reactive engine. Logos API on `:8051`.
 - **hapax-officium** — Management decision support. Filesystem-as-bus data model. Logos API on `:8050`.
 - **hapax-watch** — Wear OS companion app. Streams biometric sensor data (heart rate, HRV, skin temperature, sleep) to council logos API.
 - **hapax-phone** — Android companion app. Kotlin/Compose. Streams daily health summaries + 60s phone context to council.
-- **hapax-mcp** — MCP server (38 tools) bridging logos APIs to Claude Code tools.
+- **hapax-mcp** — MCP server (36 tools) bridging logos APIs to Claude Code tools.
 - **tabbyAPI** — External LLM inference server (ExllamaV2/V3). Upstream clone of `theroyallab/tabbyAPI`. See § External Dependencies.
 - **atlas-voice-training** — Custom wake word training pipeline (Docker-based openWakeWord fine-tuning). Upstream clone of `briankelley/atlas-voice-training`.
 - **distro-work** — System maintenance scripts and research docs. Not a software project.
@@ -46,59 +46,13 @@ Each sub-project has its own CLAUDE.md — always read it before working in that
 - **Hooks enforce branch discipline.** `no-stale-branches.sh` blocks new branch creation when unmerged branches exist. `work-resolution-gate.sh` blocks edits when open PRs exist. Destructive git commands are blocked on feature branches with commits ahead of main. These hooks interact with subagents — see global CLAUDE.md § "Subagent Git Safety" for mandatory patterns.
 - CODEOWNERS protects governance files.
 
-## SDLC Methodology and Platform Lanes
-
-Methodology gates are load-bearing across single-session work and coordinated
-lanes. Operator prose, relay notes, dashboards, terminal paste, and session
-memory are intake material; implementation authority comes from a request or
-cc-task with `authority_case`, non-null `parent_spec`, route metadata, declared
-mutation surface, and the applicable evidence gates.
-
-Read-only intake/research and governance-object creation are allowed only when
-the task or hook explicitly marks that path as intake/bootstrap. Source,
-runtime, vault, system, provider-spend, public-surface, aesthetic, theoretical,
-visual, audio, and audiovisual mutations require a claimed cc-task before the
-mutation. Task creation must follow request -> WSJF -> cc-task; manual writes to
-claim files are not a process substitute.
-
-Visible terminal lanes, headless lanes, IDE lanes, browser controls, and
-SBCL/CLOG controls must dispatch through
-`hapax-council/scripts/hapax-methodology-dispatch` or a wrapper that delegates
-to it. Do not send or follow generic prompts to claim "the next task" or
-"highest WSJF". A governed dispatch names the task, lane, platform, mode/profile,
-AuthorityCase, parent spec, worktree, claim/close commands, route evidence, and
-current capability/quota blockers.
-
-Current coding-platform configuration surfaces:
-
-- Codex: `~/.codex/config.toml`, trusted project `.codex/config.toml`,
-  `AGENTS.md`, `~/.codex/rules/`, MCP tables, hooks, and `codex exec` for
-  non-interactive work. Hapax Codex launchers run no-ask with the hook adapter;
-  no-ask is not a governance bypass.
-- Claude Code: `~/.claude/settings.json`, repo `.claude/settings.json`,
-  `.claude/settings.local.json`, `CLAUDE.md`, `.mcp.json`, permission rules,
-  hooks, and `claude -p`/headless flags. Broad tool permissions are constrained
-  by cc-task, branch, PR, and hook gates.
-- Gemini CLI: `~/.gemini/settings.json`, project `.gemini/settings.json`,
-  `/etc/gemini-cli/settings.json`, `GEMINI.md` or configured context file names,
-  policy paths, sandbox/profile settings, tool/MCP allowlists, hooks, and
-  `--prompt`/headless flags.
-- Mistral Vibe: `~/.vibe/config.toml`, project `.vibe/config.toml`,
-  `VIBE_HOME`, `~/.vibe/AGENTS.md`, `~/.vibe/agents/`, `~/.vibe/prompts/`,
-  trusted folders, tool permissions, and MCP server tables.
-- Antigravity: global rule `~/.gemini/GEMINI.md`, global workflows under
-  `~/.gemini/antigravity/global_workflows/`, and workspace rules/workflows under
-  `.agents/rules/` and `.agents/workflows/`. Treat `.agent/` as legacy
-  compatibility only; new protocol-facing rules and workflows belong in
-  `.agents/`.
-
 ## Shared Infrastructure
 
 All running locally. Docker Compose for infrastructure, systemd user units for application services. No process-compose in production boot chain.
 
-**Docker containers** (20, `restart: always`):
+**Docker containers** (13, `restart: always`):
 - **LiteLLM** — API gateway (`:4000` council, `:4100` officium), routes to Claude/Gemini/TabbyAPI. Redis response caching (1h TTL). No local model fallback chains — TabbyAPI failures degrade gracefully in agents.
-- **Qdrant** — Vector DB. Canonical schema in `shared/qdrant_schema.py` (11 collections; `operator-patterns` is dead-schema, do not add writers).
+- **Qdrant** — Vector DB. Canonical schema in `shared/qdrant_schema.py` (10 collections; `operator-patterns` is dead-schema, do not add writers).
 - **Langfuse** — LLM observability (`:3000`); blob store on MinIO `/data` with 14-day lifecycle rule on `events/` (prevents inode exhaustion).
 - **Prometheus** + **Grafana** — Metrics and dashboards.
 - Plus: PostgreSQL (audit), Redis, ClickHouse, n8n, ntfy, OpenWebUI.
@@ -118,7 +72,7 @@ All running locally. Docker Compose for infrastructure, systemd user units for a
 - **hapax-daimonion** — Persistent voice daemon (STT on GPU, TTS on CPU via Kokoro 82M)
 - **studio-compositor** — GPU camera tiling/recording/HLS
 - **visual-layer-aggregator** — Perception → Stimmung → /dev/shm
-- 115 timers (sync agents, health monitor, VRAM watchdog, backups, storage arbiter, rebuilds)
+- 87 timers (sync agents, health monitor, VRAM watchdog, backups, storage arbiter, rebuilds)
 
 **24/7 recovery**: Kernel panic auto-reboot (10s), hardware watchdog (SP5100 TCO, 30s), greetd autologin, lingering. See `hapax-council/systemd/README.md`.
 
@@ -138,26 +92,6 @@ Two repositories in this workspace are upstream clones — git points at someone
 ## Working mode
 
 Operator working mode (`research`/`rnd`) is the single mode system across the stack. SSOT: `~/.cache/hapax/working-mode`, written by the `hapax-working-mode` CLI. Council adds a third mode (`fortress`) for studio livestream gating; officium intentionally omits it. Legacy `cycle_mode` (dev/prod) endpoints remain as deprecated aliases routing to `working-mode` server-side. Migration spec: `hapax-council/docs/officium-design-language.md` §9.
-
-## Perplexity Delegation
-
-Perplexity Sonar models are routed through LiteLLM as `web-scout`, `web-research`, `web-reason`, `web-deep`. Use them when the task needs real-time web search grounding — Perplexity is the only provider with dedicated search infrastructure, provider-neutral web coverage, and per-response cost transparency.
-
-**Auto-invoke when:**
-- Real-time web search for current-event grounding or fact-checking
-- Literature scouting with citation URLs (CHI 2027, academic research)
-- Technology/model/vendor comparison requiring current data
-- Content opportunity discovery across diverse web sources
-
-**Model selection:**
-- `web-scout` (sonar, $1/$1): fast factual lookups, current-event claims
-- `web-research` (sonar-pro, $3/$15): multi-source investigation, 200K context
-- `web-reason` (sonar-reasoning-pro, $2/$8): cross-source claim verification
-- `web-deep` (sonar-deep-research, $2/$8+extras): systematic reviews, deep literature analysis
-
-**Use Gemini instead when:** long-doc/image/video perception, Google-specific search, OCR. **Keep on Claude when:** multi-file refactors, tool-heavy agent loops, governance-protected work.
-
-**Mandatory:** after every Perplexity call, scan response for 429/rate-limit signals. Surface immediately to the operator if hit.
 
 ## CLAUDE.md governance
 

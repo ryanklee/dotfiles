@@ -4,7 +4,7 @@
 
 ## Purpose
 
-ExllamaV2/V3 LLM inference server. In the hapax workspace it serves **Command-R 35B** (EXL3 5.0 bpw) on `:5000`; alternates in `models/` (Command-R 4.0bpw, Qwen3.5-9B, Qwen3.6-35B-A3B-abliterated) are not the active default. LiteLLM (in the council Docker compose stack) routes `local-fast`, `coding`, `reasoning` here. See `hapax-council/CLAUDE.md § Architecture` for the GPU/cache contract.
+ExllamaV2/V3 LLM inference server. In the hapax workspace it serves **Command-R 35B** (EXL3 5.0 bpw) on `:5000`; alternates in `models/` (Qwen3.5-9B, Qwen3.6-35B-A3B) are not the active default. LiteLLM (in the council Docker compose stack) routes `local-fast`, `coding`, `reasoning` here. See `hapax-council/CLAUDE.md § Architecture` for the GPU/cache contract.
 
 ## Local config
 
@@ -14,7 +14,7 @@ ExllamaV2/V3 LLM inference server. In the hapax workspace it serves **Command-R 
   - `model_name: command-r-08-2024-exl3-5.0bpw`
   - `port: 5000`
   - `disable_auth: true` (single-operator workstation, axiom `single_user`)
-- `models/` — contains the active Command-R 35B EXL3 directory plus alternates (Command-R 4.0bpw, Qwen3.5-9B, Qwen3.6-35B-A3B-abliterated). `model_name` in `config.yml` selects the active default. No symlinks; standard layout.
+- `models/` — contains the active Command-R 35B EXL3 directory plus alternates (Qwen3.5-9B, Qwen3.6-35B-A3B). `model_name` in `config.yml` selects the active default. No symlinks; standard layout.
 - `config_sample.yml` — pristine upstream default. Do not edit.
 
 ## Run
